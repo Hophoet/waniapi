@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,12 +24,15 @@ public class User {
     @Email
     private String email;
 
+
     @NotBlank
     @Size(max = 120)
     private String password;
 
     @DBRef
     private Set<Role> roles = new HashSet<>();
+
+    private String reference;
 
     public User() {
     }
@@ -37,6 +41,13 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public  User(String username, String email, String password, String reference){
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.reference = reference;
     }
 
     public String getId() {
@@ -78,4 +89,9 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+
+    public String getReference() { return reference; }
+
+    public void setReference(String reference) { this.reference = reference; }
+
 }
