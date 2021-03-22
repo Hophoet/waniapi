@@ -9,6 +9,8 @@ public class LoginRequest {
     @NotBlank
     private String password;
 
+    private  String reference;
+
     public String getUsername() {
         return username;
     }
@@ -24,4 +26,8 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getReference() { return reference; }
+
+    public void setReference(String reference) { this.reference = reference; }
 }
