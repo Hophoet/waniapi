@@ -2,6 +2,7 @@ package com.wani.waniapi.auth.playload.request;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ public class SignupRequest {
     private String email;
 
     private Set<String> roles;
+
+    private String reference;
 
     @NotBlank
     @Size(min = 6, max = 40)
@@ -52,4 +55,8 @@ public class SignupRequest {
     public void setRole(Set<String> roles) {
         this.roles = roles;
     }
+
+    public String getReference() { return reference; }
+
+    public void setReference(String reference) { this.reference = reference; }
 }
