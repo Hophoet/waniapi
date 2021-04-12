@@ -4,6 +4,7 @@ import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
 import com.wani.waniapi.api.models.File;
+import com.wani.waniapi.api.models.Payment;
 import com.wani.waniapi.api.models.PaymentMethod;
 import com.wani.waniapi.api.models.Subscription;
 import com.wani.waniapi.auth.repository.UserRepository;
@@ -11,8 +12,10 @@ import com.wani.waniapi.auth.services.UserService;
 import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
+import com.wani.waniapi.api.serializers.SubscriptionSerializer;
 import com.wani.waniapi.api.repositories.FileRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
+import com.wani.waniapi.api.repositories.PaymentRepository;
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.auth.playload.response.MessageResponse;
 import com.wani.waniapi.auth.playload.request.UpdateRequest;
@@ -26,6 +29,8 @@ import com.wani.waniapi.auth.playload.request.SignupRequest;
 import com.wani.waniapi.api.playload.request.paymentmethod.CreatePaymentMethodRequest;
 import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.models.SubscriptionPlan;
+import com.wani.waniapi.api.models.SubscriptionResponse;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +62,9 @@ public class AdminController {
     
     @Autowired
     PaymentMethodRepository paymentMethodRepository;
+    
+    @Autowired
+    PaymentRepository paymentRepository;
 
 
     @Autowired
@@ -505,9 +513,34 @@ public class AdminController {
     
     @GetMapping("/subscriptions")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Subscription> getSubscriptions(){
+    public List<SubscriptionResponse> getSubscriptions(){
+    	List<SubscriptionResponse> subscriptionResponses = new ArrayList<>();
         List<Subscription> subscriptions = subscriptionRepository.findAll();
-        return subscriptions;
+        for(Subscription subscription: subscriptions) {
+        
+        	SubscriptionResponse subscriptionResponse = SubscriptionSerializer.serializer(subscription);
+        	subscriptionResponse.setId(subscription.getId());
+        	subscriptionResponse.setPhoneNumber(subscription.getPhoneNumber());
+        	subscriptionResponse.setCreatedAt(subscription.getCreatedAt());
+        	subscriptionResponse.setEndedAt(subscription.getEndedAt());
+        	subscriptionResponse.setPaid(subscription.getPaid());
+//        	System.out.println(subscriptionResponse);
+        	Optional<User> user = userRepository.findById(subscription.getUserId());
+    		if(user.isPresent()) {
+    			subscriptionResponse.setUser(user.get());
+    		}
+    		Optional<SubscriptionPlan> subscriptionPlan = subscriptionPlanRepository.findById(subscription.getSubscriptionPlanId());
+    		if(subscriptionPlan.isPresent()) {
+    			subscriptionResponse.setSubscriptionPlan(subscriptionPlan.get());
+    		}
+    		Optional<Payment> payment = paymentRepository.findById(subscription.getPaymentId());
+    		if(payment.isPresent()) {
+    			subscriptionResponse.setPayment(payment.get());
+    		}
+    		subscriptionResponses.add(subscriptionResponse);
+        	
+        }
+        return subscriptionResponses;
     }
     
     @GetMapping("/subscription-plan/{subscriptionPlanId}/users")
