@@ -273,15 +273,28 @@ public class AdminController {
     @PostMapping("/user/create")
     public ResponseEntity<?> createUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+        	   return ResponseEntity
+                       .badRequest()
+                       .body(
+                           new ErrorResponse(
+                                   400,
+                                   "user/username-already-used",
+                                   "Username is already taken!"
+                           )
+
+                       );
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "user/email-already-used",
+                                "Email is already taken!"
+                        )
+                    );
         }
 
         // Create new user's account
