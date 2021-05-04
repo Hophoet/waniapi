@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -29,6 +30,17 @@ public class AdminController {
         List<User> users = userRepository.findAll();
         return users;
     }
+
+    @GetMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity getUser(@PathVariable String id){
+        Optional<User> user =  userRepository.findById(id);
+        if(!user.isPresent()){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(user);
+    }
+    
 
     @DeleteMapping("/users/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
