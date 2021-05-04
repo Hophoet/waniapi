@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.wani.waniapi.auth.playload.response.MessageResponse;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -55,5 +56,51 @@ public class AdminController {
         catch (Exception e){
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+    }
+
+
+    @PutMapping("/users/{id}/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity updateUser(
+        @PathVariable String id, 
+        @RequestPart(required = true) String username,
+        @RequestPart(required = true) String email
+    ){
+        // get the user
+        Optional<User> user =  userRepository.findById(id);
+        // check if the user exists
+        if(!user.isPresent()){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: user not exists!"));
+        }
+        // get the user object
+        User userValues = user.get();
+        // check if the username is not already used
+        if (
+            userRepository.existsByUsername(username) && 
+            !userValues.getUsername().equals(username)
+
+        ){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is already taken!"));
+        }
+
+        // check if the email is not already used
+        if (
+            userRepository.existsByEmail(email) &&
+            !userValues.getEmail().equals(email)
+         ) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        // update the user
+        userValues.setUsername(username);
+        userValues.setEmail(email);
+        //TODO update the user
+        return ResponseEntity.ok(userRepository.save(userValues));
     }
 }
