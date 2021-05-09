@@ -11,6 +11,10 @@ public class LoginRequest {
 
     private  String reference;
 
+    private  String firstName;
+    private  String lastName;
+    private  String address;
+
     public String getUsername() {
         return username;
     }
@@ -25,6 +29,33 @@ public class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    // first name
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    // last name
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    // last name
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getReference() { return reference; }

@@ -19,6 +19,9 @@ public class SignupRequest {
     private Set<String> roles;
 
     private String reference;
+    private String firstName;
+    private String lastName;
+    private String address;
 
     @NotBlank
     @Size(min = 6, max = 40)
@@ -59,4 +62,32 @@ public class SignupRequest {
     public String getReference() { return reference; }
 
     public void setReference(String reference) { this.reference = reference; }
+
+    // first name
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    // last name
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    // last name
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
 }

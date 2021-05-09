@@ -34,6 +34,12 @@ public class User {
 
     private String reference;
 
+    private String firstName;
+
+    private String lastName;
+
+    private String address;
+
     public User() {
     }
 
@@ -48,6 +54,23 @@ public class User {
         this.email = email;
         this.password = password;
         this.reference = reference;
+    }
+    public  User(
+        String username, 
+        String email, 
+        String password, 
+        String reference,
+        String firstName,
+        String lastName,
+        String address
+    ){
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.reference = reference;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
     }
 
     public String getId() {
@@ -89,6 +112,17 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+    public String getFirstName() { return firstName; }
+
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getAddress() { return address; }
+
+    public void setAddress(String address) { this.address = address; }
 
     public String getReference() { return reference; }
 
