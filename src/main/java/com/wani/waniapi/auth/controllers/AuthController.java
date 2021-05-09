@@ -5,6 +5,7 @@ import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.playload.request.LoginRequest;
 import com.wani.waniapi.auth.playload.request.SignupRequest;
+import com.wani.waniapi.auth.playload.request.UpdateRequest;
 import com.wani.waniapi.auth.playload.response.JwtResponse;
 import com.wani.waniapi.auth.playload.response.MessageResponse;
 import com.wani.waniapi.auth.repository.RoleRepository;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -134,5 +136,58 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+
+    @PutMapping("/{id}/update")
+    public ResponseEntity<?> updateUser(
+        @PathVariable String id, 
+        @Valid @RequestBody UpdateRequest updateRequest
+    ) {
+
+        // get the user
+        Optional<User> user =  userRepository.findById(id);
+        // check if the user exists
+        if(!user.isPresent()){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: user not exists!"));
+        }
+
+        // get the user object
+        User userValues = user.get();
+        // check if the username is not already used
+        if (
+            userRepository.existsByUsername(updateRequest.getUsername()) && 
+            !userValues.getUsername().equals(updateRequest.getUsername())
+
+        ){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is already taken!"));
+        }
+
+        // check if the email is not already used
+        if (
+            userRepository.existsByEmail(updateRequest.getEmail()) &&
+            !userValues.getEmail().equals(updateRequest.getEmail())
+         ) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        // update the user
+        userValues.setUsername(updateRequest.getUsername());
+        userValues.setEmail(updateRequest.getEmail());
+        userValues.setFirstName(updateRequest.getFirstName());
+        userValues.setLastName(updateRequest.getLastName());
+        userValues.setAddress(updateRequest.getAddress());
+        //TODO update the user
+        userRepository.save(userValues);
+
+        return ResponseEntity.ok(new MessageResponse("User updated successfully!"));
+
+
     }
 }
