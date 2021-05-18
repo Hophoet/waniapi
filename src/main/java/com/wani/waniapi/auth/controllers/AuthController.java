@@ -7,6 +7,8 @@ import com.wani.waniapi.auth.playload.request.LoginRequest;
 import com.wani.waniapi.auth.playload.request.SignupRequest;
 import com.wani.waniapi.auth.playload.request.UpdateRequest;
 import com.wani.waniapi.auth.playload.response.JwtResponse;
+import com.wani.waniapi.auth.playload.response.ErrorResponse;
+
 import com.wani.waniapi.auth.playload.response.MessageResponse;
 import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.auth.repository.UserRepository;
@@ -79,15 +81,29 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
+              return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "auth/username-already-used",
+                                "Username is already taken!"
+                        )
+
+                    );
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+   
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "auth/email-already-used",
+                                "Email is already taken!"
+                        )
+                    );
         }
 
 
