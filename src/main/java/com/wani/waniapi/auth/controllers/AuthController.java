@@ -193,9 +193,17 @@ public class AuthController {
         Optional<User> user =  userRepository.findById(id);
         // check if the user exists
         if(!user.isPresent()){
-            return ResponseEntity
+              return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: user not exists!"));
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "user/not-found",
+                                "User not found, invalid user id"
+                        )
+
+                    );
+
         }
 
         // get the user object
