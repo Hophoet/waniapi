@@ -251,7 +251,9 @@ public class AuthController {
         //TODO update the user
         userRepository.save(userValues);
 
-        return ResponseEntity.ok(new MessageResponse("User updated successfully!"));
+        return ResponseEntity.ok(
+           userValues
+            );
 
 
     }
