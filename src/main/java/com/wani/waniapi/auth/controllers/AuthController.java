@@ -214,9 +214,16 @@ public class AuthController {
             !userValues.getUsername().equals(updateRequest.getUsername())
 
         ){
-            return ResponseEntity
+              return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "auth/username-already-used",
+                                "Username is already taken!"
+                        )
+
+                    );
         }
 
         // check if the email is not already used
