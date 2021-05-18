@@ -233,7 +233,13 @@ public class AuthController {
          ) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "auth/email-already-used",
+                                "Email is already taken!"
+                        )
+                    );
         }
 
         // update the user
