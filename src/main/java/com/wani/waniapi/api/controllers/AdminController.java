@@ -269,6 +269,15 @@ public class AdminController {
     }
 
 
+    @GetMapping("/subscription-plans")
+    public List<SubscriptionPlan> getSubscriptionPlans(){
+        List<SubscriptionPlan> subscriptionPlans = subscriptionPlanRepository.findAll();
+        return subscriptionPlans;
+    }
+
+
+
+
 
 
 }
