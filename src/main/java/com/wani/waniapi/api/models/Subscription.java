@@ -11,7 +11,7 @@ public class Subscription {
     @Id
     private String id;
     private User user;
-    private Pack pack;
+    private SubscriptionPlan subscriptionPlan;
     private Payement payement;
     private Date dateDeDebut;
     private Date dateDeFin;
