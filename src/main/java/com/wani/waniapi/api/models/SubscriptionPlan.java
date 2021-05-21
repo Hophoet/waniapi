@@ -29,6 +29,15 @@ public class SubscriptionPlan {
         this.name = name;
     }
 
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -52,5 +61,7 @@ public class SubscriptionPlan {
     public void setCreatedAt(Integer createdAt) {
         this.createdAt = createdAt;
     }
+
+
 
 }
