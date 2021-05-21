@@ -3,8 +3,11 @@ package com.wani.waniapi.api.controllers;
 import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
+
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.repository.RoleRepository;
+import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.wani.waniapi.auth.playload.response.MessageResponse;
 import com.wani.waniapi.auth.playload.request.SignupRequest;
+import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
+import com.wani.waniapi.api.models.SubscriptionPlan;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.validation.Valid;
@@ -28,7 +33,7 @@ import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class AdminController {
 
     @Autowired
@@ -36,6 +41,9 @@ public class AdminController {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    SubscriptionPlanRepository subscriptionPlanRepository;
     
     @Autowired
     PasswordEncoder encoder;
@@ -179,4 +187,24 @@ public class AdminController {
 
         return ResponseEntity.ok(new MessageResponse("User created successfully!"));
     }
+
+
+
+    // Subscription plans management by the administrator
+    @PostMapping("/subscription-plan/create")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createSubscriptionPlan(@Valid @RequestBody CreateSubscriptionPlanRequest createSubscriptionPlanRequest) {
+
+        // Create new subscription plan
+        SubscriptionPlan subscriptionPlan = new SubscriptionPlan(
+            createSubscriptionPlanRequest.getName(),
+            createSubscriptionPlanRequest.getDescription(),
+            createSubscriptionPlanRequest.getAmount()
+        );
+        return ResponseEntity.ok(
+            subscriptionPlanRepository.save(subscriptionPlan)
+        );
+    }
+
+
 }
