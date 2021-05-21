@@ -242,6 +242,32 @@ public class AdminController {
         return ResponseEntity.ok(subscriptionPlanRepository.save(subscriptionPlanValues));
     }
 
+    
+
+    @DeleteMapping("/subscription-plan/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity deleteSubcriptionPlan(@PathVariable String id){
+         try {
+            if(!subscriptionPlanRepository.findById(id).isPresent()){
+                return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/not-found",
+                                "invalid subscription plan id"
+                        )
+
+                    );
+            }
+            subscriptionPlanRepository.deleteById(id);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        catch (Exception e){
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 
 
