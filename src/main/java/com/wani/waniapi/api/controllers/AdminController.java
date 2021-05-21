@@ -8,6 +8,9 @@ import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 
+import com.wani.waniapi.auth.playload.response.ErrorResponse;
+import com.wani.waniapi.auth.playload.response.MessageResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.wani.waniapi.auth.playload.response.MessageResponse;
 import com.wani.waniapi.auth.playload.request.SignupRequest;
 import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.models.SubscriptionPlan;
@@ -193,7 +195,9 @@ public class AdminController {
     // Subscription plans management by the administrator
     @PostMapping("/subscription-plan/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createSubscriptionPlan(@Valid @RequestBody CreateSubscriptionPlanRequest createSubscriptionPlanRequest) {
+    public ResponseEntity<?> createSubscriptionPlan(
+           @Valid @RequestBody CreateSubscriptionPlanRequest createSubscriptionPlanRequest
+    ) {
 
         // Create new subscription plan
         SubscriptionPlan subscriptionPlan = new SubscriptionPlan(
@@ -205,6 +209,40 @@ public class AdminController {
             subscriptionPlanRepository.save(subscriptionPlan)
         );
     }
+
+
+    @PutMapping("/subscription-plan/{id}/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity updateSubscriptionPlan(
+        @PathVariable String id, 
+        @Valid @RequestBody CreateSubscriptionPlanRequest createSubscriptionPlanRequest
+    ){
+        // get the subscription plan
+        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(id);
+        // check if the subscription plan exists
+        if(!subscriptionPlan.isPresent()){
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            404,
+                            "subscription-plan/not-found",
+                            "invalid subscription plan id"
+                    )
+
+                );
+        }
+        // get the subscription plan object
+        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        // update the subcription plan
+        subscriptionPlanValues.setName(createSubscriptionPlanRequest.getName());
+        subscriptionPlanValues.setDescription(createSubscriptionPlanRequest.getDescription());
+        subscriptionPlanValues.setAmount(createSubscriptionPlanRequest.getAmount());
+        // update the subscription plan
+        return ResponseEntity.ok(subscriptionPlanRepository.save(subscriptionPlanValues));
+    }
+
+
 
 
 }
