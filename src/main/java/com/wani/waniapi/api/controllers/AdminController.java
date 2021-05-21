@@ -257,7 +257,6 @@ public class AdminController {
                                 "subscription-plan/not-found",
                                 "invalid subscription plan id"
                         )
-
                     );
             }
             subscriptionPlanRepository.deleteById(id);
@@ -275,6 +274,25 @@ public class AdminController {
         return subscriptionPlans;
     }
 
+
+
+    @GetMapping("/subscription-plan/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity getSubscriptionPlan(@PathVariable String id){
+        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(id);
+        if(!subscriptionPlan.isPresent()){
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                        404,
+                        "subscription-plan/not-found",
+                        "invalid subscription plan id"
+                    )
+                );
+        }
+        return ResponseEntity.ok(subscriptionPlan);
+    }
 
 
 
