@@ -203,7 +203,8 @@ public class AdminController {
         SubscriptionPlan subscriptionPlan = new SubscriptionPlan(
             createSubscriptionPlanRequest.getName(),
             createSubscriptionPlanRequest.getDescription(),
-            createSubscriptionPlanRequest.getAmount()
+            createSubscriptionPlanRequest.getAmount(),
+            createSubscriptionPlanRequest.getDuration()
         );
         return ResponseEntity.ok(
             subscriptionPlanRepository.save(subscriptionPlan)
@@ -229,7 +230,6 @@ public class AdminController {
                             "subscription-plan/not-found",
                             "invalid subscription plan id"
                     )
-
                 );
         }
         // get the subscription plan object
@@ -238,6 +238,7 @@ public class AdminController {
         subscriptionPlanValues.setName(createSubscriptionPlanRequest.getName());
         subscriptionPlanValues.setDescription(createSubscriptionPlanRequest.getDescription());
         subscriptionPlanValues.setAmount(createSubscriptionPlanRequest.getAmount());
+        subscriptionPlanValues.setDuration(createSubscriptionPlanRequest.getDuration());
         // update the subscription plan
         return ResponseEntity.ok(subscriptionPlanRepository.save(subscriptionPlanValues));
     }
