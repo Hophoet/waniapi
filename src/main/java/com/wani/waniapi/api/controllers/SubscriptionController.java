@@ -16,6 +16,8 @@ import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.api.playload.request.subscription.CreateSubscriptionRequest;
 
+import com.wani.waniapi.api.playload.response.subscription.SubscriptionResponse;
+
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
@@ -115,10 +117,19 @@ public class SubscriptionController {
             createSubscriptionRequest.getSubscriptionPlanId(),
             paymentObject.getId()
         );
+        Subscription subscriptionObject =  subscriptionRepository.save(subscription);
 
+        // susbcription response
+        SubscriptionResponse subscriptionResponse = new SubscriptionResponse(
+            subscriptionObject.getId(),
+            userObject.getId(),
+            createSubscriptionRequest.getSubscriptionPlanId(),
+            paymentObject.getId(),
+            subscriptionObject.getCreatedAt()
+       );
 
         return ResponseEntity.ok(
-            subscriptionRepository.save(subscription)
+            subscriptionResponse
         );
     }
 
