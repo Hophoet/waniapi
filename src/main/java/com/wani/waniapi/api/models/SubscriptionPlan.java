@@ -10,13 +10,20 @@ public class SubscriptionPlan {
     private String name;
     private String description;
     private Integer amount;
+    private Integer duration;
     private Integer createdAt;
 
 
-    public SubscriptionPlan(String name, String description, Integer amount) {
+    public SubscriptionPlan(
+        String name, 
+        String description, 
+        Integer amount,
+        Integer duration
+    ) {
         this.name = name;
         this.description = description;
         this.amount = amount;
+        this.duration = duration;
         this.createdAt = 20390;
     }
 
@@ -36,6 +43,14 @@ public class SubscriptionPlan {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
     }
 
     public String getDescription() {

@@ -12,6 +12,9 @@ public class CreateSubscriptionPlanRequest {
     // @NotBlank
     private  Integer amount;
 
+    // @NotBlank
+    private  Integer duration;
+
     private  Integer createdAt;
 
     public String getName() {
@@ -20,6 +23,14 @@ public class CreateSubscriptionPlanRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
     }
 
     public String getDescription() {
