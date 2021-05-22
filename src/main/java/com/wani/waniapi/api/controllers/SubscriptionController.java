@@ -133,4 +133,27 @@ public class SubscriptionController {
         );
     }
 
+
+
+    @GetMapping("/subscriptions")
+    public List<Subscription> getUserSubscriptions(
+       @Valid @RequestPart(required = true) String userId
+    ){
+        
+        /** MUST GET THE AUTHENTICATED USER NOT BY THE USER ID */
+        // get the user id
+        Optional<User> user =  userRepository.findById(
+            userId
+        );
+        // get the use object
+        User userObject = user.get();
+
+        /**
+         * TODO
+         * subscription must be get by the userId on the subscriptionRepository
+         */
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        return subscriptions;
+    }
+
 }
