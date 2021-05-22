@@ -14,6 +14,7 @@ public class Subscription {
     private String subscriptionPlanId;
     private String paymentId;
     private Integer createdAt;
+    private Integer endedAt;
 
     public Subscription(
         String userId, 
@@ -24,6 +25,7 @@ public class Subscription {
         this.subscriptionPlanId = subscriptionPlanId;
         this.paymentId = paymentId;
         this.createdAt = 20390;
+        this._setEndedAt();
     }
 
     public String getId() {
@@ -66,4 +68,19 @@ public class Subscription {
         this.createdAt = createdAt;
     }
 
+    public Integer getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(Integer endedAt) {
+        this.endedAt = endedAt;
+    }
+
+    public void _setEndedAt() {
+        /**
+         * TODO
+         * calculate and set the endedAt value
+         */
+        this.endedAt = this.createdAt + 500;
+    }
 }
