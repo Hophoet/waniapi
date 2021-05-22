@@ -6,14 +6,64 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-@Document
+@Document(collection = "subscriptions")
 public class Subscription {
     @Id
     private String id;
-    private User user;
-    private SubscriptionPlan subscriptionPlan;
-    private Payement payement;
-    private Date dateDeDebut;
-    private Date dateDeFin;
+    private String userId;
+    private String subscriptionPlanId;
+    private String paymentId;
+    private Integer createdAt;
+
+    public Subscription(
+        String userId, 
+        String subscriptionPlanId, 
+        String paymentId
+    ) {
+        this.userId = userId;
+        this.subscriptionPlanId = subscriptionPlanId;
+        this.paymentId = paymentId;
+        this.createdAt = 20390;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getSubscriptionPlanId() {
+        return subscriptionPlanId;
+    }
+
+    public void setSubscriptionPlanId(String subscriptionPlanId) {
+        this.subscriptionPlanId = subscriptionPlanId;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public Integer getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Integer createdAt) {
+        this.createdAt = createdAt;
+    }
 
 }
