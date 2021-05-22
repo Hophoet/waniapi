@@ -135,7 +135,7 @@ public class SubscriptionController {
 
 
 
-    @GetMapping("/subscriptions")
+    @GetMapping("/user-subscriptions")
     public List<Subscription> getUserSubscriptions(
        @Valid @RequestPart(required = true) String userId
     ){
