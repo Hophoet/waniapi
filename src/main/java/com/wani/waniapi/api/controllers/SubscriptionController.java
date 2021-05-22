@@ -156,4 +156,12 @@ public class SubscriptionController {
         return subscriptions;
     }
 
+    @GetMapping("/subscriptions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Subscription> getSubscriptions(
+    ){
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        return subscriptions;
+    }
+
 }
