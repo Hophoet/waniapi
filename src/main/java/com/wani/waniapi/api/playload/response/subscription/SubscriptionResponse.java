@@ -12,16 +12,16 @@ public class SubscriptionResponse {
 
     private String paymentId;
 
-    private  Integer createdAt;
+    private  long createdAt;
 
-    private  Integer endedAt;
+    private  long endedAt;
 
     public SubscriptionResponse(
         String id, 
         String userId, 
         String subscriptionPlanId, 
         String paymentId, 
-        Integer createdAt
+        long createdAt
     ) {
         this.id = id;
         this.userId = userId;
@@ -55,19 +55,19 @@ public class SubscriptionResponse {
         this.paymentId = paymentId;
     }
 
-    public Integer getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Integer createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Integer getEndedAt() {
+    public long getEndedAt() {
         return endedAt;
     }
 
-    public void setEndedAt(Integer endedAt) {
+    public void setEndedAt(long endedAt) {
         this.endedAt = endedAt;
     }
 

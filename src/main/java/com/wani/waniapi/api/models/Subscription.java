@@ -13,8 +13,8 @@ public class Subscription {
     private String userId;
     private String subscriptionPlanId;
     private String paymentId;
-    private Integer createdAt;
-    private Integer endedAt;
+    private long createdAt;
+    private long endedAt;
 
     public Subscription(
         String userId, 
@@ -24,8 +24,9 @@ public class Subscription {
         this.userId = userId;
         this.subscriptionPlanId = subscriptionPlanId;
         this.paymentId = paymentId;
-        this.createdAt = 20390;
-        this._setEndedAt();
+        Date currentDate = new Date();
+        this.createdAt = currentDate.getTime();
+
     }
 
     public String getId() {
@@ -60,27 +61,20 @@ public class Subscription {
         this.paymentId = paymentId;
     }
 
-    public Integer getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Integer createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Integer getEndedAt() {
+    public long getEndedAt() {
         return endedAt;
     }
 
-    public void setEndedAt(Integer endedAt) {
+    public void setEndedAt(long endedAt) {
         this.endedAt = endedAt;
     }
 
-    public void _setEndedAt() {
-        /**
-         * TODO
-         * calculate and set the endedAt value
-         */
-        this.endedAt = this.createdAt + 500;
-    }
 }
