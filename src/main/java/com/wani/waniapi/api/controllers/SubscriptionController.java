@@ -50,7 +50,7 @@ public class SubscriptionController {
     PaymentRepository paymentRepository;
 
     @PostMapping("/subscription/create")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity createSubscription(
            @Valid @RequestBody CreateSubscriptionRequest createSubscriptionRequest
     ){
@@ -113,7 +113,6 @@ public class SubscriptionController {
         Payment paymentObject = paymentRepository.save(payment);
         // get the suscription plan object
         SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
-        System.out.println(subscriptionPlanValues.getDuration());
         //create subscription
         Subscription subscription = new Subscription(
             userObject.getId(),
@@ -134,6 +133,7 @@ public class SubscriptionController {
 
 
     @GetMapping("/user-subscriptions")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public List<Subscription> getUserSubscriptions(
        @Valid @RequestPart(required = true) String userId
     ){
