@@ -111,25 +111,23 @@ public class SubscriptionController {
             paymentMethodObject.getId()
         );
         Payment paymentObject = paymentRepository.save(payment);
+        // get the suscription plan object
+        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        System.out.println(subscriptionPlanValues.getDuration());
         //create subscription
         Subscription subscription = new Subscription(
             userObject.getId(),
             createSubscriptionRequest.getSubscriptionPlanId(),
             paymentObject.getId()
         );
+        // set the subscription endedAt value
+        subscription.setEndedAt(
+            subscriptionPlanValues.getDuration() + subscription.getCreatedAt()
+        );
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
 
-        // susbcription response
-        SubscriptionResponse subscriptionResponse = new SubscriptionResponse(
-            subscriptionObject.getId(),
-            userObject.getId(),
-            createSubscriptionRequest.getSubscriptionPlanId(),
-            paymentObject.getId(),
-            subscriptionObject.getCreatedAt()
-       );
-
         return ResponseEntity.ok(
-            subscriptionResponse
+            subscriptionObject
         );
     }
 
