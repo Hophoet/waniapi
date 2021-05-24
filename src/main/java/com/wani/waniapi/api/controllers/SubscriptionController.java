@@ -50,7 +50,7 @@ public class SubscriptionController {
     PaymentRepository paymentRepository;
 
     @PostMapping("/subscription/create")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity createSubscription(
            @Valid @RequestBody CreateSubscriptionRequest createSubscriptionRequest
     ){
@@ -150,7 +150,9 @@ public class SubscriptionController {
          * TODO
          * subscription must be get by the userId on the subscriptionRepository
          */
-        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        List<Subscription> subscriptions = subscriptionRepository.findByUserId(
+            userId
+        );
         return subscriptions;
     }
 
