@@ -15,6 +15,10 @@ public class CreateSubscriptionPlanRequest {
     // @NotBlank
     private  Integer duration;
 
+    private  Integer interest;
+
+    private  Boolean available;
+
     private  Integer createdAt;
 
     public String getName() {
@@ -56,4 +60,19 @@ public class CreateSubscriptionPlanRequest {
     public void setCreatedAt(Integer createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
+
+    public Integer getInterest() {
+        return interest;
+    }
+    public void setInterest(Integer interest) {
+        this.interest = interest;
+    }
+
 }
