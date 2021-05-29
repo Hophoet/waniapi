@@ -204,7 +204,9 @@ public class AdminController {
             createSubscriptionPlanRequest.getName(),
             createSubscriptionPlanRequest.getDescription(),
             createSubscriptionPlanRequest.getAmount(),
-            createSubscriptionPlanRequest.getDuration()
+            createSubscriptionPlanRequest.getInterest(),
+            createSubscriptionPlanRequest.getDuration(),
+            createSubscriptionPlanRequest.getAvailable()
         );
         return ResponseEntity.ok(
             subscriptionPlanRepository.save(subscriptionPlan)
@@ -238,8 +240,9 @@ public class AdminController {
         subscriptionPlanValues.setName(createSubscriptionPlanRequest.getName());
         subscriptionPlanValues.setDescription(createSubscriptionPlanRequest.getDescription());
         subscriptionPlanValues.setAmount(createSubscriptionPlanRequest.getAmount());
-        subscriptionPlanValues.setDuration(createSubscriptionPlanRequest.getDuration());
-        // update the subscription plan
+        subscriptionPlanValues.setInterest(createSubscriptionPlanRequest.getInterest());
+        subscriptionPlanValues.setDuration(createSubscriptionPlanRequest.getDuration()); // update the subscription plan
+        subscriptionPlanValues.setAvailable(createSubscriptionPlanRequest.getAvailable());
         return ResponseEntity.ok(subscriptionPlanRepository.save(subscriptionPlanValues));
     }
 
