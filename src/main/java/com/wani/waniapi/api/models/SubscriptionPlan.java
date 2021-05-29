@@ -10,6 +10,8 @@ public class SubscriptionPlan {
     private String name;
     private String description;
     private Integer amount;
+    private Integer interest;
+    private Boolean available;
     private Integer duration;
     private Integer createdAt;
 
@@ -18,13 +20,32 @@ public class SubscriptionPlan {
         String name, 
         String description, 
         Integer amount,
+        Integer interest,
         Integer duration
     ) {
         this.name = name;
         this.description = description;
         this.amount = amount;
+        this.interest = interest;
         this.duration = duration;
         this.createdAt = 20390;
+        this.available = true;
+    }
+    public SubscriptionPlan(
+        String name, 
+        String description, 
+        Integer amount,
+        Integer interest,
+        Integer duration,
+        Boolean available
+    ) {
+        this.name = name;
+        this.description = description;
+        this.amount = amount;
+        this.interest = interest;
+        this.duration = duration;
+        this.createdAt = 20390;
+        this.available = available;
     }
 
 
@@ -75,6 +96,20 @@ public class SubscriptionPlan {
 
     public void setCreatedAt(Integer createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
+
+    public Integer getInterest() {
+        return interest;
+    }
+    public void setInterest(Integer interest) {
+        this.interest = interest;
     }
 
 
