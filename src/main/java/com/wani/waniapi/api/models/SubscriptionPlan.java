@@ -14,7 +14,11 @@ public class SubscriptionPlan {
     private Boolean available;
     private Integer duration;
     private Integer createdAt;
+    private Integer subscriptionsCount;
 
+    public SubscriptionPlan(){
+
+    }
 
     public SubscriptionPlan(
         String name, 
@@ -30,6 +34,7 @@ public class SubscriptionPlan {
         this.duration = duration;
         this.createdAt = 20390;
         this.available = true;
+        this.subscriptionsCount = 0;
     }
     public SubscriptionPlan(
         String name, 
@@ -46,6 +51,7 @@ public class SubscriptionPlan {
         this.duration = duration;
         this.createdAt = 20390;
         this.available = available;
+        this.subscriptionsCount = 0;
     }
 
 
@@ -112,6 +118,11 @@ public class SubscriptionPlan {
         this.interest = interest;
     }
 
-
+    public Integer getSubscriptionsCount() {
+        return subscriptionsCount;
+    }
+    public void setSubscriptionsCount(Integer sC) {
+        this.subscriptionsCount = sC;
+    }
 
 }
