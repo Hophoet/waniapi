@@ -327,6 +327,17 @@ public class AuthController {
         }
         // get the user object
         User userValues = user.get();
+        
+
+        String imageId = userValues.getImage();
+        if(imageId!=null){
+            Optional<File> imageFile =  fileRepository.findById(imageId);
+            if(imageFile.isPresent()){
+                // delete the old image setted
+                fileRepository.deleteById(imageId);
+            }
+        }
+
 
         String message = "";
         try {
@@ -342,7 +353,6 @@ public class AuthController {
             userRepository.save(userValues);
 
             String url = "http://localhost:8089/api/v1/file/image/"+ savedFile.getId();
-            System.out.println(url);
             userValues.setImage(url);
 
             return ResponseEntity.ok(
