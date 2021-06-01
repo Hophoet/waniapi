@@ -17,6 +17,8 @@ public class LoginRequest {
     private  String lastName;
     private  String address;
 
+    private String image;
+
     public String getUsername() {
         return username;
     }
@@ -69,4 +71,9 @@ public class LoginRequest {
     public Boolean getIsActive() { return isActive; }
 
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
+
+    public String getImage() { return image; }
+
+    public void setImage(String image) { this.image = image; }
 }

@@ -5,6 +5,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.Set;
+import org.springframework.web.multipart.MultipartFile;
 
 public class SignupRequest {
     @NotBlank
@@ -92,10 +93,10 @@ public class SignupRequest {
         this.address = address;
     }
 
-
     // user state getter(is activate or not)
     public Boolean getIsActive() { return isActive; }
 
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
 
 }

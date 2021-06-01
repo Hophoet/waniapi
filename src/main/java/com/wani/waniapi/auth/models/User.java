@@ -40,6 +40,8 @@ public class User {
 
     private String address;
 
+    private String image;
+
     private Boolean isActive;
 
     public User() {
@@ -143,4 +145,8 @@ public class User {
     public Boolean getIsActive() { return isActive; }
 
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
+    public String getImage() { return image; }
+
+    public void setImage(String image) { this.image = image; }
 }
