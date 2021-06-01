@@ -30,6 +30,8 @@ public class UserDetailsImpl implements UserDetails {
 
     private Boolean isActive;
 
+    private String image;
+
     @JsonIgnore
     private String password;
 
@@ -45,7 +47,8 @@ public class UserDetailsImpl implements UserDetails {
         String firstName,
         String lastName,
         String address,
-        Boolean isActive
+        Boolean isActive,
+        String image
     ) {
         this.id = id;
         this.username = username;
@@ -57,6 +60,7 @@ public class UserDetailsImpl implements UserDetails {
         this.lastName = lastName;
         this.address = address;
         this.isActive = isActive;
+        this.image = image;
     }
 
     public static UserDetailsImpl build(User user) {
@@ -74,7 +78,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getAddress(),
-                user.getIsActive()
+                user.getIsActive(),
+                user.getImage()
                 );
     }
 
@@ -147,4 +152,8 @@ public class UserDetailsImpl implements UserDetails {
         UserDetailsImpl user = (UserDetailsImpl) o;
         return Objects.equals(id, user.id);
     }
+
+    public String getImage() { return image; }
+
+    public void setImage(String image) { this.image = image; }
 }
