@@ -87,6 +87,15 @@ public class AuthController {
                     );
         }
 
+        String img = null;
+        String imageId = userDetails.getImage();
+        if(imageId!=null){
+            Optional<File> image =  fileRepository.findById(imageId);
+            if(image.isPresent()){
+                File imageValues = image.get();
+                img = "http://localhost:8089/api/v1/file/image/"+ imageValues.getId();
+            }
+        }
         return ResponseEntity.ok(
             new JwtResponse(
                 jwt,
@@ -99,7 +108,7 @@ public class AuthController {
                 userDetails.getLastName(),
                 userDetails.getAddress(),
                 userDetails.getIsActive(),
-                " jdkf"
+                img
             )
         );
     }
@@ -208,7 +217,7 @@ public class AuthController {
                 userDetails.getLastName(),
                 userDetails.getAddress(),
                 userDetails.getIsActive(),
-                " jdkf"
+                userDetails.getImage()
 
             )
         );
