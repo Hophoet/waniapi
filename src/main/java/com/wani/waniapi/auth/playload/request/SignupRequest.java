@@ -16,6 +16,8 @@ public class SignupRequest {
     @Email
     private String email;
 
+    private Boolean isActive;
+
     private Set<String> roles;
 
     private String reference;
@@ -89,5 +91,11 @@ public class SignupRequest {
     public void setAddress(String address) {
         this.address = address;
     }
+
+
+    // user state getter(is activate or not)
+    public Boolean getIsActive() { return isActive; }
+
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
 }

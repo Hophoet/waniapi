@@ -9,6 +9,8 @@ public class LoginRequest {
     @NotBlank
     private String password;
 
+    private Boolean isActive;
+
     private  String reference;
 
     private  String firstName;
@@ -61,4 +63,10 @@ public class LoginRequest {
     public String getReference() { return reference; }
 
     public void setReference(String reference) { this.reference = reference; }
+
+
+    // user state getter(is activate or not)
+    public Boolean getIsActive() { return isActive; }
+
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 }

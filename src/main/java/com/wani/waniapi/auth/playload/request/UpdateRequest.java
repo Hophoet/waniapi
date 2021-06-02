@@ -16,6 +16,8 @@ public class UpdateRequest {
     @Email
     private String email;
 
+    private Boolean isActive;
+
     @NotBlank
     private String firstName;
 
@@ -67,5 +69,11 @@ public class UpdateRequest {
     public void setAddress(String address) {
         this.address = address;
     }
+
+
+    // user state getter(is activate or not)
+    public Boolean getIsActive() { return isActive; }
+
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
 }
