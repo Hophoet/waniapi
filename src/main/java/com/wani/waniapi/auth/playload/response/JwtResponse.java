@@ -14,6 +14,7 @@ public class JwtResponse {
     private String firstName;
     private String lastName;
     private String address;
+    private Boolean isActive;
 
     public JwtResponse(
         String accessToken, 
@@ -24,7 +25,8 @@ public class JwtResponse {
         String reference,
         String firstName,
         String lastName,
-        String address
+        String address,
+        Boolean isActive
     ) {
         this.token = accessToken;
         this.id = id;
@@ -35,6 +37,7 @@ public class JwtResponse {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
+        this.isActive = isActive;
     }
 
     public String getAccessToken() {
@@ -111,4 +114,9 @@ public class JwtResponse {
     public void setAddress(String address) {
         this.address = address;
     }
+
+
+    public Boolean getIsActive() { return isActive; }
+
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 }
