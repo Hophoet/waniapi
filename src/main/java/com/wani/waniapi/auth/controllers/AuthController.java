@@ -63,6 +63,18 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
+        if (!userDetails.getIsActive()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "auth/account-is-not-active",
+                                "Account was been deactivate"
+                        )
+                    );
+        }
+
         return ResponseEntity.ok(
             new JwtResponse(
                 jwt,
