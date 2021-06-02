@@ -73,7 +73,8 @@ public class AuthController {
                 userDetails.getReference(),
                 userDetails.getFirstName(),
                 userDetails.getLastName(),
-                userDetails.getAddress()
+                userDetails.getAddress(),
+                userDetails.getIsActive()
             )
         );
     }
@@ -94,7 +95,6 @@ public class AuthController {
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-   
             return ResponseEntity
                     .badRequest()
                     .body(
@@ -116,6 +116,12 @@ public class AuthController {
         if(signUpRequest.getReference() != null){
             //set the user reference
             user.setReference(signUpRequest.getReference());
+        }
+
+        //check the user signup state
+        if(signUpRequest.getIsActive() != null){
+            //set the user reference
+            user.setIsActive(signUpRequest.getIsActive());
         }
 
         Set<String> strRoles = signUpRequest.getRoles();
@@ -175,7 +181,8 @@ public class AuthController {
                 userDetails.getReference(),
                 userDetails.getFirstName(),
                 userDetails.getLastName(),
-                userDetails.getAddress()
+                userDetails.getAddress(),
+                userDetails.getIsActive()
             )
         );
 
@@ -248,6 +255,7 @@ public class AuthController {
         userValues.setFirstName(updateRequest.getFirstName());
         userValues.setLastName(updateRequest.getLastName());
         userValues.setAddress(updateRequest.getAddress());
+        userValues.setIsActive(updateRequest.getIsActive());
         //TODO update the user
         userRepository.save(userValues);
 
