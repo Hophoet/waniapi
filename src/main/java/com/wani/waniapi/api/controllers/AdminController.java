@@ -10,6 +10,7 @@ import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.auth.playload.response.MessageResponse;
+import com.wani.waniapi.auth.playload.request.UpdateRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import com.wani.waniapi.auth.playload.request.SignupRequest;
 import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.models.SubscriptionPlan;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -88,8 +89,7 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity updateUser(
         @PathVariable String id, 
-        @RequestPart(required = true) String username,
-        @RequestPart(required = true) String email
+        @Valid @RequestBody UpdateRequest updateRequest
     ){
         // get the user
         Optional<User> user =  userRepository.findById(id);
@@ -111,8 +111,8 @@ public class AdminController {
         User userValues = user.get();
         // check if the username is not already used
         if (
-            userRepository.existsByUsername(username) && 
-            !userValues.getUsername().equals(username)
+            userRepository.existsByUsername(updateRequest.getUsername()) && 
+            !userValues.getUsername().equals(updateRequest.getUsername())
 
         ){
               return ResponseEntity
@@ -129,8 +129,8 @@ public class AdminController {
 
         // check if the email is not already used
         if (
-            userRepository.existsByEmail(email) &&
-            !userValues.getEmail().equals(email)
+            userRepository.existsByEmail(updateRequest.getEmail()) &&
+            !userValues.getEmail().equals(updateRequest.getEmail())
          ) {
             return ResponseEntity
                     .badRequest()
@@ -144,8 +144,12 @@ public class AdminController {
         }
 
         // update the user
-        userValues.setUsername(username);
-        userValues.setEmail(email);
+        userValues.setUsername(updateRequest.getUsername());
+        userValues.setEmail(updateRequest.getEmail());
+        userValues.setFirstName(updateRequest.getFirstName());
+        userValues.setLastName(updateRequest.getLastName());
+        userValues.setAddress(updateRequest.getAddress());
+        userValues.setIsActive(updateRequest.getIsActive());
         //TODO update the user
         return ResponseEntity.ok(userRepository.save(userValues));
     }
