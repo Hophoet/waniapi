@@ -28,6 +28,8 @@ public class UserDetailsImpl implements UserDetails {
 
     private String address;
 
+    private Boolean isActive;
+
     @JsonIgnore
     private String password;
 
@@ -42,7 +44,8 @@ public class UserDetailsImpl implements UserDetails {
         String reference,
         String firstName,
         String lastName,
-        String address
+        String address,
+        Boolean isActive
     ) {
         this.id = id;
         this.username = username;
@@ -53,6 +56,7 @@ public class UserDetailsImpl implements UserDetails {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
+        this.isActive = isActive;
     }
 
     public static UserDetailsImpl build(User user) {
@@ -69,7 +73,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getReference(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getAddress()
+                user.getAddress(),
+                user.getIsActive()
                 );
     }
 
@@ -97,6 +102,11 @@ public class UserDetailsImpl implements UserDetails {
     public String getAddress() {
         return address;
     }
+
+
+    public Boolean getIsActive() { return isActive; }
+
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
     @Override
     public String getPassword() {
