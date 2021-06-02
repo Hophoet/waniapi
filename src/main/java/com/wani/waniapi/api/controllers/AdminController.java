@@ -95,9 +95,17 @@ public class AdminController {
         Optional<User> user =  userRepository.findById(id);
         // check if the user exists
         if(!user.isPresent()){
-            return ResponseEntity
+              return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: user not exists!"));
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "user/not-found",
+                                "User not found, invalid user id"
+                        )
+
+                    );
+
         }
         // get the user object
         User userValues = user.get();
@@ -107,9 +115,16 @@ public class AdminController {
             !userValues.getUsername().equals(username)
 
         ){
-            return ResponseEntity
+              return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "user/username-already-used",
+                                "Username is already taken!"
+                        )
+
+                    );
         }
 
         // check if the email is not already used
@@ -119,7 +134,13 @@ public class AdminController {
          ) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "user/email-already-used",
+                                "Email is already taken!"
+                        )
+                    );
         }
 
         // update the user
