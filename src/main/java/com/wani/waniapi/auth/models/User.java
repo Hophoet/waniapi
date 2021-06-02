@@ -40,6 +40,8 @@ public class User {
 
     private String address;
 
+    private Boolean isActive;
+
     public User() {
     }
 
@@ -47,6 +49,14 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isActive = true;
+    }
+
+    public User(String username, String email, String password, Boolean isActive) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.isActive = isActive;
     }
 
     public  User(String username, String email, String password, String reference){
@@ -54,6 +64,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.reference = reference;
+        this.isActive = true;
     }
     public  User(
         String username, 
@@ -71,6 +82,7 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
+        this.isActive = true;
     }
 
     public String getId() {
@@ -128,4 +140,7 @@ public class User {
 
     public void setReference(String reference) { this.reference = reference; }
 
+    public Boolean getIsActive() { return isActive; }
+
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 }
