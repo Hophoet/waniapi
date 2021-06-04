@@ -86,7 +86,6 @@ public class FileController {
 
 
     @GetMapping(value = "/file/image/{id}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-    @ResponseBody
     public byte[] image(@PathVariable String id){
         byte[] data = null;
         Optional<File> file  = fileRepository.findById(id);
