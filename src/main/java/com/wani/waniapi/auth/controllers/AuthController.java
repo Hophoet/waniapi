@@ -162,7 +162,7 @@ public class AuthController {
         //check the user signup state
         if(signUpRequest.getIsActive() != null){
             //set the user reference
-            user.setIsActive(signUpRequest.getIsActive());
+            user.setIsActive(true);
         }
 
         Set<String> strRoles = signUpRequest.getRoles();
@@ -291,14 +291,12 @@ public class AuthController {
                         )
                     );
         }
-
         // update the user
         userValues.setUsername(updateRequest.getUsername());
         userValues.setEmail(updateRequest.getEmail());
         userValues.setFirstName(updateRequest.getFirstName());
         userValues.setLastName(updateRequest.getLastName());
         userValues.setAddress(updateRequest.getAddress());
-        userValues.setIsActive(updateRequest.getIsActive());
         //TODO update the user
         userRepository.save(userValues);
 
