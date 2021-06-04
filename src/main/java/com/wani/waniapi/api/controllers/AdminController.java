@@ -188,6 +188,21 @@ public class AdminController {
             //set the user reference
             user.setReference(signUpRequest.getReference());
         }
+        //check the user signup first name
+        if(signUpRequest.getFirstName() != null){
+            //set the user first name
+            user.setFirstName(signUpRequest.getFirstName());
+        }
+        //check the user signup last name
+        if(signUpRequest.getLastName() != null){
+            //set the user last name
+            user.setLastName(signUpRequest.getLastName());
+        }
+        //check the user signup address
+        if(signUpRequest.getAddress() != null){
+            //set the user address
+            user.setAddress(signUpRequest.getAddress());
+        }
 
         Set<String> strRoles = signUpRequest.getRoles();
         Set<Role> roles = new HashSet<>();
@@ -220,9 +235,11 @@ public class AdminController {
         }
 
         user.setRoles(roles);
-        userRepository.save(user);
+        User createdUser = userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User created successfully!"));
+        return ResponseEntity.ok(
+            createdUser
+            );
     }
 
 
