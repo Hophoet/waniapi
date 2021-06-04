@@ -203,6 +203,11 @@ public class AdminController {
             //set the user address
             user.setAddress(signUpRequest.getAddress());
         }
+        //check the user signup active state
+        if(signUpRequest.getIsActive() != null){
+            //set the user state
+            user.setIsActive(signUpRequest.getIsActive());
+        }
 
         Set<String> strRoles = signUpRequest.getRoles();
         Set<Role> roles = new HashSet<>();
