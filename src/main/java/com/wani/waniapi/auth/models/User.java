@@ -9,6 +9,8 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDateTime;
+
 
 @Document(collection = "users")
 public class User {
@@ -43,6 +45,9 @@ public class User {
     private String image;
 
     private Boolean isActive;
+
+    private String token;
+	private LocalDateTime tokenCreationDate;
 
     public User() {
     }
@@ -149,4 +154,12 @@ public class User {
     public String getImage() { return image; }
 
     public void setImage(String image) { this.image = image; }
+
+    public String getToken() { return token; }
+
+    public void setToken(String token) { this.token = token; }
+
+    public LocalDateTime getTokenCreationDate() { return tokenCreationDate; }
+
+    public void setTokenCreationDate(LocalDateTime tcd) { this.tokenCreationDate = tcd; }
 }
