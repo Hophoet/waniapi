@@ -18,6 +18,10 @@ import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.security.jwt.JwtUtils;
 import com.wani.waniapi.auth.security.services.UserDetailsImpl;
+
+
+import com.wani.waniapi.auth.services.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,9 +44,12 @@ import org.bson.types.Binary;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 public class AuthController {
 
+    @Autowired
+	private UserService userService;
+    
     @Autowired
     FileRepository fileRepository;
 
@@ -61,7 +68,7 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
-    @PostMapping("/signin")
+    @PostMapping("/auth/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -113,7 +120,7 @@ public class AuthController {
         );
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
               return ResponseEntity
@@ -226,7 +233,7 @@ public class AuthController {
     }
 
 
-    @PutMapping("/{id}/update")
+    @PutMapping("/auth/{id}/update")
     public ResponseEntity<?> updateUser(
         @PathVariable String id, 
         @Valid @RequestBody UpdateRequest updateRequest
@@ -303,7 +310,7 @@ public class AuthController {
     }
 
 
-    @PutMapping("/{id}/set-profile-image")
+    @PutMapping("auth/{id}/set-profile-image")
     public ResponseEntity setUserProfileImage(
             @PathVariable String id, 
             @RequestParam("image") MultipartFile image
@@ -369,6 +376,68 @@ public class AuthController {
             );
         }
     }
+
+
+
+	@PostMapping("auth/forgot-password")
+	public ResponseEntity forgotPassword(@RequestParam String email) {
+
+		String response = userService.forgotPassword(email);
+
+		if (!response.startsWith("Invalid")) {
+			String url = "http://localhost:8089/api/auth/reset-password?token=" + response;
+            return new ResponseEntity<>(
+                url,
+                HttpStatus.OK
+             );
+		}
+        return ResponseEntity
+            .badRequest()
+            .body(
+                new ErrorResponse(
+                        404,
+                        "user/not-found",
+                        "User not found with this email"
+                )
+
+            );
+
+	}
+
+	@PutMapping("auth/reset-password")
+	public ResponseEntity  resetPassword(@RequestParam String token,
+			@RequestParam String password) {
+
+		String result =  userService.resetPassword(token, password);
+        if(result == "token-not-valid"){
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            400,
+                            "token/not-valid",
+                            "invalid token"
+                    )
+                );
+        }
+        else if(result == "token-was-expired"){
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            400,
+                            "token/was-expired",
+                            "token was expired"
+                    )
+                );
+        }
+
+        return new ResponseEntity<>(
+            "password changed successfully!",
+            HttpStatus.OK
+        );
+
+	}
 
 
 }
