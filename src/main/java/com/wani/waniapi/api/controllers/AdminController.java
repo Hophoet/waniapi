@@ -3,10 +3,12 @@ package com.wani.waniapi.api.controllers;
 import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
+import com.wani.waniapi.api.models.File;
 
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
+import com.wani.waniapi.api.repositories.FileRepository;
 
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.auth.playload.response.MessageResponse;
@@ -21,23 +23,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import com.wani.waniapi.auth.playload.request.SignupRequest;
 import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.models.SubscriptionPlan;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.util.Date;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.List;
 import java.util.Set;
+import org.bson.types.Binary;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/v1")
 public class AdminController {
+
+    @Autowired
+    FileRepository fileRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -50,6 +59,7 @@ public class AdminController {
     
     @Autowired
     PasswordEncoder encoder;
+
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
