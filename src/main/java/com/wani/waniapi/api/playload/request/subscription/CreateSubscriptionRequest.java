@@ -11,6 +11,9 @@ public class CreateSubscriptionRequest {
 
     @NotBlank
     private String paymentMethodId;
+    
+    @NotBlank
+    private String phoneNumber;
 
     private  Integer createdAt;
 
@@ -45,5 +48,13 @@ public class CreateSubscriptionRequest {
     public void setCreatedAt(Integer createdAt) {
         this.createdAt = createdAt;
     }
+    
+    public String getPhoneNumber() {
+		return phoneNumber;
+	}
+    
+    public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
 }
