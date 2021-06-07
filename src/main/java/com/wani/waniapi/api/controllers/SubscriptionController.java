@@ -117,14 +117,15 @@ public class SubscriptionController {
         Subscription subscription = new Subscription(
             userObject.getId(),
             createSubscriptionRequest.getSubscriptionPlanId(),
-            paymentObject.getId()
+            paymentObject.getId(),
+            createSubscriptionRequest.getPhoneNumber()
         );
         // set the subscription endedAt value
         subscription.setEndedAt(
             subscriptionPlanValues.getDuration() + subscription.getCreatedAt()
-        );
+        );    
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
-
+        // response
         return ResponseEntity.ok(
             subscriptionObject
         );
