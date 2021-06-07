@@ -472,6 +472,23 @@ public class AdminController {
         List<Subscription> subscriptions = subscriptionRepository.findAll();
         return subscriptions;
     }
+    
+    @GetMapping("/subscription-plan/{subscriptionPlanId}/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<User> getSubscriptionPlanUsers(@PathVariable String subscriptionPlanId){
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanId);
+        List<User> users = new ArrayList<>();
+        for(Subscription subscription : subscriptions) {
+        	String userId = subscription.getUserId();
+        	// get the user
+            Optional<User> user =  userRepository.findById(userId);
+            // check if the user exists
+            if(user.isPresent()){
+            	users.add(user.get());
+            }
+        }
+        return users;
+    }
 
 
     
