@@ -4,11 +4,12 @@ import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
 import com.wani.waniapi.api.models.File;
-
+import com.wani.waniapi.api.models.Subscription;
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.services.UserService;
 import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
+import com.wani.waniapi.api.repositories.SubscriptionRepository;
 import com.wani.waniapi.api.repositories.FileRepository;
 
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
@@ -46,6 +47,8 @@ public class AdminController {
 
     @Autowired
     FileRepository fileRepository;
+    
+
 
     @Autowired
     UserRepository userRepository;
@@ -57,9 +60,15 @@ public class AdminController {
     SubscriptionPlanRepository subscriptionPlanRepository;
     
     @Autowired
+    SubscriptionRepository subscriptionRepository;
+    
+    @Autowired
     PasswordEncoder encoder;
 
-
+    /**
+     * USERS
+     * 
+     */
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsers(){
@@ -77,7 +86,6 @@ public class AdminController {
         return ResponseEntity.ok(user);
     }
     
-
     @DeleteMapping("/user/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity deleteUser(@PathVariable String id){
@@ -92,7 +100,6 @@ public class AdminController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
-
 
     @PutMapping("/user/{id}/update")
     @PreAuthorize("hasRole('ADMIN')")
@@ -171,6 +178,73 @@ public class AdminController {
         return ResponseEntity.ok(userRepository.save(userValues));
     }
 
+    @PutMapping("user/{id}/set-profile-image")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity setUserProfileImage(
+            @PathVariable String id, 
+            @RequestParam("image") MultipartFile image
+        ) {
+        
+        // get the user
+        Optional<User> user =  userRepository.findById(id);
+        // check if the user exists
+        if(!user.isPresent()){
+              return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "user/not-found",
+                                "User not found, invalid user id"
+                        )
+
+                    );
+
+        }
+        // get the user object
+        User userValues = user.get();
+        
+
+        String imageId = userValues.getImage();
+        if(imageId!=null){
+            Optional<File> imageFile =  fileRepository.findById(imageId);
+            if(imageFile.isPresent()){
+                // delete the old image setted
+                fileRepository.deleteById(imageId);
+            }
+        }
+
+
+        String message = "";
+        try {
+            File uploadFile = new File();
+            uploadFile.setName(image.getOriginalFilename());
+            uploadFile.setCreatedAt(new Date());
+            uploadFile.setContent(new Binary(image.getBytes()));
+            uploadFile.setContentType(image.getContentType());
+            uploadFile.setSize(image.getSize());
+
+            File savedFile = fileRepository.save(uploadFile);
+            userValues.setImage(savedFile.getId());
+            userRepository.save(userValues);
+
+            String url = "http://localhost:8089/api/v1/file/image/"+ savedFile.getId();
+            userValues.setImage(url);
+
+            return ResponseEntity.ok(
+                userValues
+            );
+        } catch (Exception e) {
+        message = "Could not upload the file: " + image.getOriginalFilename() + "!";
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(
+            new ErrorResponse(
+                    404,
+                    "code",
+                    message
+            )
+            );
+        }
+    }
 
     @PostMapping("/user/create")
     public ResponseEntity<?> createUser(@Valid @RequestBody SignupRequest signUpRequest) {
@@ -253,10 +327,36 @@ public class AdminController {
             createdUser
             );
     }
+	
+    @PostMapping("user/forgot-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity forgotPassword(@RequestParam String email) {
 
+		String response = userService.forgotPassword(email);
 
+		if (!response.startsWith("Invalid")) {
+			String url = "http://localhost:8089/api/auth/reset-password?token=" + response;
+            return new ResponseEntity<>(
+                url,
+                HttpStatus.OK
+             );
+		}
+        return ResponseEntity
+            .badRequest()
+            .body(
+                new ErrorResponse(
+                        404,
+                        "user/not-found",
+                        "User not found with this email"
+                )
 
-    // Subscription plans management by the administrator
+            );
+
+	}
+
+    /*
+     * SUBSCRIPTION PLAN
+     */
     @PostMapping("/subscription-plan/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createSubscriptionPlan(
@@ -276,7 +376,6 @@ public class AdminController {
             subscriptionPlanRepository.save(subscriptionPlan)
         );
     }
-
 
     @PutMapping("/subscription-plan/{id}/update")
     @PreAuthorize("hasRole('ADMIN')")
@@ -310,8 +409,6 @@ public class AdminController {
         return ResponseEntity.ok(subscriptionPlanRepository.save(subscriptionPlanValues));
     }
 
-    
-
     @DeleteMapping("/subscription-plan/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity deleteSubcriptionPlan(@PathVariable String id){
@@ -335,14 +432,11 @@ public class AdminController {
         }
     }
 
-
     @GetMapping("/subscription-plans")
     public List<SubscriptionPlan> getSubscriptionPlans(){
         List<SubscriptionPlan> subscriptionPlans = subscriptionPlanRepository.findAll();
         return subscriptionPlans;
     }
-
-
 
     @GetMapping("/subscription-plan/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -362,100 +456,16 @@ public class AdminController {
         return ResponseEntity.ok(subscriptionPlan);
     }
 
-
-    @PutMapping("user/{id}/set-profile-image")
+    /*
+     * SUBSCRIPTIONS
+     */
+    @GetMapping("/subscription-plan/{subscriptionPlanId}/subscriptions")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity setUserProfileImage(
-            @PathVariable String id, 
-            @RequestParam("image") MultipartFile image
-        ) {
-        
-        // get the user
-        Optional<User> user =  userRepository.findById(id);
-        // check if the user exists
-        if(!user.isPresent()){
-              return ResponseEntity
-                    .badRequest()
-                    .body(
-                        new ErrorResponse(
-                                404,
-                                "user/not-found",
-                                "User not found, invalid user id"
-                        )
-
-                    );
-
-        }
-        // get the user object
-        User userValues = user.get();
-        
-
-        String imageId = userValues.getImage();
-        if(imageId!=null){
-            Optional<File> imageFile =  fileRepository.findById(imageId);
-            if(imageFile.isPresent()){
-                // delete the old image setted
-                fileRepository.deleteById(imageId);
-            }
-        }
-
-
-        String message = "";
-        try {
-            File uploadFile = new File();
-            uploadFile.setName(image.getOriginalFilename());
-            uploadFile.setCreatedAt(new Date());
-            uploadFile.setContent(new Binary(image.getBytes()));
-            uploadFile.setContentType(image.getContentType());
-            uploadFile.setSize(image.getSize());
-
-            File savedFile = fileRepository.save(uploadFile);
-            userValues.setImage(savedFile.getId());
-            userRepository.save(userValues);
-
-            String url = "http://localhost:8089/api/v1/file/image/"+ savedFile.getId();
-            userValues.setImage(url);
-
-            return ResponseEntity.ok(
-                userValues
-            );
-        } catch (Exception e) {
-        message = "Could not upload the file: " + image.getOriginalFilename() + "!";
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(
-            new ErrorResponse(
-                    404,
-                    "code",
-                    message
-            )
-            );
-        }
+    public List<Subscription> getSubscriptionPlanSubscriptions(@PathVariable String subscriptionPlanId){
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanId);
+        return subscriptions;
     }
 
-	@PostMapping("user/forgot-password")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity forgotPassword(@RequestParam String email) {
-
-		String response = userService.forgotPassword(email);
-
-		if (!response.startsWith("Invalid")) {
-			String url = "http://localhost:8089/api/auth/reset-password?token=" + response;
-            return new ResponseEntity<>(
-                url,
-                HttpStatus.OK
-             );
-		}
-        return ResponseEntity
-            .badRequest()
-            .body(
-                new ErrorResponse(
-                        404,
-                        "user/not-found",
-                        "User not found with this email"
-                )
-
-            );
-
-	}
 
     
 
