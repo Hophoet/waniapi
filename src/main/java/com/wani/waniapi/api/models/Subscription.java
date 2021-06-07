@@ -1,6 +1,5 @@
 package com.wani.waniapi.api.models;
 
-import com.wani.waniapi.auth.models.User;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,7 +15,8 @@ public class Subscription {
     private String phoneNumber;
     private long createdAt;
     private long endedAt;
-
+    private boolean paid = false;
+    
     public Subscription(
         String userId, 
         String subscriptionPlanId, 
@@ -86,5 +86,15 @@ public class Subscription {
     public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
+    
+    public void setPaid(boolean paid) {
+		this.paid = paid;
+	}
+    
+    public boolean getPaid() {
+    	return paid;
+    }
+    
+   
 
 }
