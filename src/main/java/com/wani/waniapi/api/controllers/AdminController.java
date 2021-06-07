@@ -16,11 +16,6 @@ import com.wani.waniapi.auth.playload.request.UpdateRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -29,7 +24,7 @@ import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscription
 import com.wani.waniapi.api.models.SubscriptionPlan;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import javax.validation.Valid;
@@ -42,7 +37,7 @@ import org.bson.types.Binary;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/admin")
 public class AdminController {
 
     @Autowired
@@ -68,7 +63,7 @@ public class AdminController {
         return users;
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity getUser(@PathVariable String id){
         Optional<User> user =  userRepository.findById(id);
@@ -79,7 +74,7 @@ public class AdminController {
     }
     
 
-    @DeleteMapping("/users/{id}/delete")
+    @DeleteMapping("/user/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity deleteUser(@PathVariable String id){
          try {
@@ -95,7 +90,7 @@ public class AdminController {
     }
 
 
-    @PutMapping("/users/{id}/update")
+    @PutMapping("/user/{id}/update")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity updateUser(
         @PathVariable String id, 
@@ -152,20 +147,28 @@ public class AdminController {
                         )
                     );
         }
-
+        //check the user signup reference
+        if(updateRequest.getPassword() != null){
+            //set the user reference
+            userValues.setPassword(
+            	encoder.encode(updateRequest.getPassword())
+            );
+        }
         // update the user
         userValues.setUsername(updateRequest.getUsername());
         userValues.setEmail(updateRequest.getEmail());
         userValues.setFirstName(updateRequest.getFirstName());
         userValues.setLastName(updateRequest.getLastName());
         userValues.setAddress(updateRequest.getAddress());
-        userValues.setIsActive(updateRequest.getIsActive());
+        if(updateRequest.getIsActive() != null) {
+            userValues.setIsActive(updateRequest.getIsActive());
+        }
         //TODO update the user
         return ResponseEntity.ok(userRepository.save(userValues));
     }
 
 
-    @PostMapping("/users/create")
+    @PostMapping("/user/create")
     public ResponseEntity<?> createUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
@@ -356,7 +359,77 @@ public class AdminController {
     }
 
 
+    @PutMapping("user/{id}/set-profile-image")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity setUserProfileImage(
+            @PathVariable String id, 
+            @RequestParam("image") MultipartFile image
+        ) {
+        
+        // get the user
+        Optional<User> user =  userRepository.findById(id);
+        // check if the user exists
+        if(!user.isPresent()){
+              return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "user/not-found",
+                                "User not found, invalid user id"
+                        )
 
+                    );
+
+        }
+        // get the user object
+        User userValues = user.get();
+        
+
+        String imageId = userValues.getImage();
+        if(imageId!=null){
+            Optional<File> imageFile =  fileRepository.findById(imageId);
+            if(imageFile.isPresent()){
+                // delete the old image setted
+                fileRepository.deleteById(imageId);
+            }
+        }
+
+
+        String message = "";
+        try {
+            File uploadFile = new File();
+            uploadFile.setName(image.getOriginalFilename());
+            uploadFile.setCreatedAt(new Date());
+            uploadFile.setContent(new Binary(image.getBytes()));
+            uploadFile.setContentType(image.getContentType());
+            uploadFile.setSize(image.getSize());
+
+            File savedFile = fileRepository.save(uploadFile);
+            userValues.setImage(savedFile.getId());
+            userRepository.save(userValues);
+
+            String url = "http://localhost:8089/api/v1/file/image/"+ savedFile.getId();
+            userValues.setImage(url);
+
+            return ResponseEntity.ok(
+                userValues
+            );
+        } catch (Exception e) {
+        message = "Could not upload the file: " + image.getOriginalFilename() + "!";
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(
+            new ErrorResponse(
+                    404,
+                    "code",
+                    message
+            )
+            );
+        }
+    }
+
+
+
+    
 
 
 }
