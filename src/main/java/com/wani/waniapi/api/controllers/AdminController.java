@@ -465,6 +465,13 @@ public class AdminController {
         List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanId);
         return subscriptions;
     }
+    
+    @GetMapping("/subscriptions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Subscription> getSubscriptions(){
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        return subscriptions;
+    }
 
 
     
