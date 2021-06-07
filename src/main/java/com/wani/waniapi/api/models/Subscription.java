@@ -13,20 +13,22 @@ public class Subscription {
     private String userId;
     private String subscriptionPlanId;
     private String paymentId;
+    private String phoneNumber;
     private long createdAt;
     private long endedAt;
 
     public Subscription(
         String userId, 
         String subscriptionPlanId, 
-        String paymentId
+        String paymentId,
+        String phoneNumber
     ) {
         this.userId = userId;
         this.subscriptionPlanId = subscriptionPlanId;
         this.paymentId = paymentId;
         Date currentDate = new Date();
         this.createdAt = currentDate.getTime();
-
+        this.phoneNumber = phoneNumber;
     }
 
     public String getId() {
@@ -76,5 +78,13 @@ public class Subscription {
     public void setEndedAt(long endedAt) {
         this.endedAt = endedAt;
     }
+    
+    public String getPhoneNumber() {
+		return phoneNumber;
+	}
+    
+    public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
 }
