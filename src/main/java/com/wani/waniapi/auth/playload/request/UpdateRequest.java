@@ -26,6 +26,10 @@ public class UpdateRequest {
 
     @NotBlank
     private String address;
+    
+  
+    private String password;
+
 
 
     public String getUsername() {
@@ -70,6 +74,13 @@ public class UpdateRequest {
     public void setAddress(String address) {
         this.address = address;
     }
+    
+    public String getPassword() {
+		return password;
+	}
+    public void setPassword(String password) {
+		this.password = password;
+	}
 
 
     // user state getter(is activate or not)
