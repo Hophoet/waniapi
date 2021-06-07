@@ -6,6 +6,7 @@ import com.wani.waniapi.auth.models.ERole;
 import com.wani.waniapi.api.models.File;
 
 import com.wani.waniapi.auth.repository.UserRepository;
+import com.wani.waniapi.auth.services.UserService;
 import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.FileRepository;
@@ -39,6 +40,9 @@ import org.bson.types.Binary;
 @RestController
 @RequestMapping("/api/v1/admin")
 public class AdminController {
+
+    @Autowired
+	private UserService userService;
 
     @Autowired
     FileRepository fileRepository;
@@ -427,7 +431,31 @@ public class AdminController {
         }
     }
 
+	@PostMapping("user/forgot-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity forgotPassword(@RequestParam String email) {
 
+		String response = userService.forgotPassword(email);
+
+		if (!response.startsWith("Invalid")) {
+			String url = "http://localhost:8089/api/auth/reset-password?token=" + response;
+            return new ResponseEntity<>(
+                url,
+                HttpStatus.OK
+             );
+		}
+        return ResponseEntity
+            .badRequest()
+            .body(
+                new ErrorResponse(
+                        404,
+                        "user/not-found",
+                        "User not found with this email"
+                )
+
+            );
+
+	}
 
     
 
