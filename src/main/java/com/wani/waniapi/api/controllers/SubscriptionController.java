@@ -4,6 +4,10 @@ package com.wani.waniapi.api.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +27,7 @@ import com.wani.waniapi.api.repositories.SubscriptionRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
 import com.wani.waniapi.api.repositories.PaymentRepository;
 import com.wani.waniapi.auth.repository.UserRepository;
-
+import com.wani.waniapi.auth.security.services.UserDetailsImpl;
 import com.wani.waniapi.api.playload.request.subscription.CreateSubscriptionRequest;
 
 import java.awt.*;
@@ -157,12 +161,98 @@ public class SubscriptionController {
         return subscriptions;
     }
 
-    @GetMapping("/subscriptions")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<Subscription> getSubscriptions(
+   
+    @PutMapping("/subscription/pay")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?>  paySubscription(
+       @AuthenticationPrincipal UserDetailsImpl userDetail,
+       @Valid @RequestPart(required = true) String subscriptionId,
+       @Valid @RequestPart(required = true) String paymentMethodId,
+       @Valid @RequestPart(required = true) String phoneNumber
     ){
-        List<Subscription> subscriptions = subscriptionRepository.findAll();
-        return subscriptions;
+    	 
+        Optional<Subscription> subscription =  subscriptionRepository.findById(
+            subscriptionId
+        );
+    	// check if the subscription exists
+        if(!subscription.isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription/not-found",
+                                "subscription not found"
+                        )
+                    );
+        }
+        Subscription subscriptionObject = subscription.get();
+        String subscriptionPlanId = subscriptionObject.getSubscriptionPlanId();
+        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
+                subscriptionPlanId
+        );
+    	// check if the subscription subscription plan exists
+    	if(!subscriptionPlan.isPresent()) {
+    		 return ResponseEntity
+                     .badRequest()
+                     .body(
+                         new ErrorResponse(
+                                 404,
+                                 "subscription-plan/not-found",
+                                 "subscription plan not found"
+                         )
+                     );
+    	}
+    	Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(
+                paymentMethodId
+          );
+    	// check if the payment method exist
+    	if(!paymentMethod.isPresent()) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "payment-method/not-found",
+                                "payment method not found"
+                        )
+                    );
+    	}
+    	
+    	String userId = subscriptionObject.getUserId();
+    	// check if is the authorized user(who make the subscription before)
+    	if(!userId.equals(userDetail.getId())) {
+    		 return ResponseEntity
+                     .badRequest()
+                     .body(
+                         new ErrorResponse(
+                                 401,
+                                 "paid/not-authoried",
+                                 "the subscription is not for the authenticated user"
+                         )
+                     );
+    	}
+    	// check if the subscription is not paid
+    	if(subscriptionObject.getPaid()) {
+    		 return ResponseEntity
+                     .badRequest()
+                     .body(
+                         new ErrorResponse(
+                                 401,
+                                 "subscription/was-paid",
+                                 "subscription already paid"
+                         )
+                     );
+    	}
+    	// Make the payment request, 
+    
+    	
+    	
+    	// Update the subscription payment phone number
+    	subscriptionObject.setPhoneNumber(phoneNumber);
+    	subscriptionObject.setPaymentId(paymentMethodId);
+    	
+       return ResponseEntity.ok(subscriptionObject);
     }
 
 }
