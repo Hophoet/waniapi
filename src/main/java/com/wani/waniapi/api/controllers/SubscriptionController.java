@@ -74,6 +74,20 @@ public class SubscriptionController {
                     )
                 );
         }
+        // get the suscription plan object
+        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        // check the availability of the subscription plan
+        if(subscriptionPlanValues.getAvailable() == null || subscriptionPlanValues.getAvailable() == false) {
+	       	 return ResponseEntity
+	                 .badRequest()
+	                 .body(
+	                     new ErrorResponse(
+	                             400,
+	                             "subscription-plan/not-available",
+	                             "subscription plan is not available"
+	                     )
+	                 );
+        }
         if(createSubscriptionRequest.getAmount() == null) {
         	 return ResponseEntity
                      .badRequest()
@@ -137,8 +151,7 @@ public class SubscriptionController {
             paymentMethodObject.getId()
         );
         Payment paymentObject = paymentRepository.save(payment);
-        // get the suscription plan object
-        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        
         //create subscription
         Subscription subscription = new Subscription(
             userObject.getId(),
