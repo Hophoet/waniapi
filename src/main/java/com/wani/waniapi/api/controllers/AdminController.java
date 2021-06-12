@@ -568,7 +568,37 @@ public class AdminController {
         PaymentMethod createdPaymentMethod = paymentMethodRepository.save(paymentMethod);
         return ResponseEntity.ok(createdPaymentMethod);
     }
+    
+    @PutMapping("/payment-method/{id}/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity updatePaymentMethod(
+        @PathVariable String id, 
+        @Valid @RequestBody CreatePaymentMethodRequest createPaymentMethodRequest
+    ){
+        // get the user
+        Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(id);
 
+        if(!paymentMethod.isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "payment-method/not-found",
+                                "Payment method not found, invalid payment method id"
+                        )
+                    );
+        }
+        PaymentMethod paymentMethodValues = paymentMethod.get();
+        paymentMethodValues.setName(createPaymentMethodRequest.getName());
+        paymentMethodValues.setDescription(createPaymentMethodRequest.getDescription());
+        if(createPaymentMethodRequest.getIsActive() != null) {
+        	paymentMethodValues.setActive(createPaymentMethodRequest.getIsActive());
+        }
+        PaymentMethod updatedPaymentMethod = paymentMethodRepository.save(paymentMethodValues);
+        return ResponseEntity.ok(updatedPaymentMethod);
+
+    }
     
     
 
