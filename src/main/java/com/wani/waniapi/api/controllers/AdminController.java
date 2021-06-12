@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.wani.waniapi.auth.playload.request.SignupRequest;
+import com.wani.waniapi.api.playload.request.paymentmethod.CreatePaymentMethodRequest;
 import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.models.SubscriptionPlan;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -529,7 +530,6 @@ public class AdminController {
     public ResponseEntity togglePaymentMethodState(
         @PathVariable String id
     ){
-        // get the user
     	   // get the user
         Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(id);
         // check if the user exists
@@ -555,6 +555,20 @@ public class AdminController {
         
     	
     }
+    
+    @PostMapping("/payment-method/create")
+    public ResponseEntity<?> createPaymentMethod(@Valid @RequestBody CreatePaymentMethodRequest createPaymentMethodRequest) {
+        PaymentMethod paymentMethod = new PaymentMethod(
+        		createPaymentMethodRequest.getName(), 
+        		createPaymentMethodRequest.getDescription()
+        );
+        if(createPaymentMethodRequest.getIsActive() != null) {
+        	paymentMethod.setActive(createPaymentMethodRequest.getIsActive());
+        }
+        PaymentMethod createdPaymentMethod = paymentMethodRepository.save(paymentMethod);
+        return ResponseEntity.ok(createdPaymentMethod);
+    }
+
     
     
 
