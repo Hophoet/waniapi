@@ -4,6 +4,7 @@ import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
 import com.wani.waniapi.api.models.File;
+import com.wani.waniapi.api.models.PaymentMethod;
 import com.wani.waniapi.api.models.Subscription;
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.services.UserService;
@@ -11,7 +12,7 @@ import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
 import com.wani.waniapi.api.repositories.FileRepository;
-
+import com.wani.waniapi.api.repositories.PaymentMethodRepository;
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.auth.playload.response.MessageResponse;
 import com.wani.waniapi.auth.playload.request.UpdateRequest;
@@ -52,9 +53,14 @@ public class AdminController {
 
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    PaymentMethodRepository paymentMethodRepository;
+
 
     @Autowired
     RoleRepository roleRepository;
+    
 
     @Autowired
     SubscriptionPlanRepository subscriptionPlanRepository;
@@ -507,7 +513,49 @@ public class AdminController {
         return users;
     }
 
+  
+    /*
+     * PAYMENT METHOD
+     */
+    @GetMapping("/payment-methods")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<PaymentMethod> getPaymentMethods(){
+        List<PaymentMethod> paymentMethods = paymentMethodRepository.findAll();
+        return paymentMethods;
+    }
+    
+    @PutMapping("/payment-method/{id}/toggle")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity togglePaymentMethodState(
+        @PathVariable String id
+    ){
+        // get the user
+    	   // get the user
+        Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(id);
+        // check if the user exists
+        if(!paymentMethod.isPresent()){
+              return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "payment-method/not-found",
+                                "Payment method not found, invalid payment method id"
+                        )
 
+                    );
+
+        }
+        PaymentMethod paymentMethodValue = paymentMethod.get();
+        paymentMethodValue.setActive(!paymentMethodValue.isActive());
+        
+        PaymentMethod updatePaymentMethod = paymentMethodRepository.save(paymentMethodValue);
+ 
+        return ResponseEntity.ok(updatePaymentMethod);
+        
+    	
+    }
+    
     
 
 
