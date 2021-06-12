@@ -72,7 +72,15 @@ public class AdminController {
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsers(){
+    	
+        String img = "http://localhost:8089/api/v1/file/image/";
+
         List<User> users = userRepository.findAll();
+        for(User user: users) {
+        	if(user.getImage() != null) {
+            	user.setImage(img+user.getImage());
+        	}
+        }
         return users;
     }
 
@@ -83,7 +91,12 @@ public class AdminController {
         if(!user.isPresent()){
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.ok(user);
+        String img = "http://localhost:8089/api/v1/file/image/";
+        User userValue = user.get();
+        if(userValue.getImage() != null) {
+        	userValue.setImage(img+userValue.getImage());
+        }
+        return ResponseEntity.ok(userValue);
     }
     
     @DeleteMapping("/user/{id}/delete")
@@ -173,6 +186,10 @@ public class AdminController {
         userValues.setAddress(updateRequest.getAddress());
         if(updateRequest.getIsActive() != null) {
             userValues.setIsActive(updateRequest.getIsActive());
+        }
+        String img = "http://localhost:8089/api/v1/file/image/";
+        if(userValues.getImage() != null) {
+        	userValues.setImage(img+userValues.getImage());
         }
         //TODO update the user
         return ResponseEntity.ok(userRepository.save(userValues));
