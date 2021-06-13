@@ -14,6 +14,10 @@ public class CreateSubscriptionRequest {
     
     @NotBlank
     private String phoneNumber;
+    
+
+    private Integer amount;
+    
 
     private  Integer createdAt;
 
@@ -56,5 +60,15 @@ public class CreateSubscriptionRequest {
     public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
+
+	public Integer getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Integer amount) {
+		this.amount = amount;
+	}
+    
+
 
 }
