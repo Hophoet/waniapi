@@ -74,6 +74,28 @@ public class SubscriptionController {
                     )
                 );
         }
+        if(createSubscriptionRequest.getAmount() == null) {
+        	 return ResponseEntity
+                     .badRequest()
+                     .body(
+                         new ErrorResponse(
+                                 400,
+                                 "subscription/amount-not-set",
+                                 "subscription amount must be set"
+                         )
+                     );
+        }
+        if(createSubscriptionRequest.getAmount() < subscriptionPlan.get().getAmount()) {
+        	 return ResponseEntity
+                     .badRequest()
+                     .body(
+                         new ErrorResponse(
+                                 400,
+                                 "subscription/amount-not-enough",
+                                 "subscription amount not reach the minimum amount"
+                         )
+                     );
+        }
         // get the payment method
         Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(
             createSubscriptionRequest.getPaymentMethodId()
@@ -128,6 +150,9 @@ public class SubscriptionController {
         subscription.setEndedAt(
             subscriptionPlanValues.getDuration() + subscription.getCreatedAt()
         );    
+        subscription.setAmount(
+        		subscriptionPlanValues.getAmount()
+        );
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
         // response
         return ResponseEntity.ok(
