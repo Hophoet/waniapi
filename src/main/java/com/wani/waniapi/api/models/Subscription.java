@@ -13,6 +13,7 @@ public class Subscription {
     private String subscriptionPlanId;
     private String paymentId;
     private String phoneNumber;
+	private int amount;
     private long createdAt;
     private long endedAt;
     private boolean paid = false;
@@ -94,6 +95,16 @@ public class Subscription {
     public boolean getPaid() {
     	return paid;
     }
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
+
     
    
 
