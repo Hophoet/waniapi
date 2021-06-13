@@ -9,7 +9,7 @@ public class SubscriptionResponse {
 	private String id;
 	private User user;
 	private SubscriptionPlan subscriptionPlan;
-	private Payment payment;
+	private PaymentResponse payment;
 	private String phoneNumber;
 	private long createdAt;
 	private long endedAt;
@@ -56,12 +56,13 @@ public class SubscriptionResponse {
 	public void setPaid(boolean paid) {
 		this.paid = paid;
 	}
-	public Payment getPayment() {
+	public PaymentResponse getPayment() {
 		return payment;
 	}
-	public void setPayment(Payment payment) {
+	public void setPayment(PaymentResponse payment) {
 		this.payment = payment;
 	}
+
 
 
 }
