@@ -525,6 +525,7 @@ public class AdminController {
         	subscriptionResponse.setCreatedAt(subscription.getCreatedAt());
         	subscriptionResponse.setEndedAt(subscription.getEndedAt());
         	subscriptionResponse.setPaid(subscription.getPaid());
+        	subscriptionResponse.setAmount(subscription.getAmount());
         	Optional<User> user = userRepository.findById(subscription.getUserId());
     		if(user.isPresent()) {
     			subscriptionResponse.setUser(user.get());
