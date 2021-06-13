@@ -11,6 +11,7 @@ public class SubscriptionResponse {
 	private SubscriptionPlan subscriptionPlan;
 	private PaymentResponse payment;
 	private String phoneNumber;
+	private int amount;
 	private long createdAt;
 	private long endedAt;
 	private boolean paid = false;
@@ -61,6 +62,12 @@ public class SubscriptionResponse {
 	}
 	public void setPayment(PaymentResponse payment) {
 		this.payment = payment;
+	}
+	public int getAmount() {
+		return amount;
+	}
+	public void setAmount(int amount) {
+		this.amount = amount;
 	}
 
 
