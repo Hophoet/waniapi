@@ -6,6 +6,7 @@ import com.wani.waniapi.auth.models.ERole;
 import com.wani.waniapi.api.models.File;
 import com.wani.waniapi.api.models.Payment;
 import com.wani.waniapi.api.models.PaymentMethod;
+import com.wani.waniapi.api.models.PaymentResponse;
 import com.wani.waniapi.api.models.Subscription;
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.services.UserService;
@@ -524,7 +525,6 @@ public class AdminController {
         	subscriptionResponse.setCreatedAt(subscription.getCreatedAt());
         	subscriptionResponse.setEndedAt(subscription.getEndedAt());
         	subscriptionResponse.setPaid(subscription.getPaid());
-//        	System.out.println(subscriptionResponse);
         	Optional<User> user = userRepository.findById(subscription.getUserId());
     		if(user.isPresent()) {
     			subscriptionResponse.setUser(user.get());
@@ -535,7 +535,21 @@ public class AdminController {
     		}
     		Optional<Payment> payment = paymentRepository.findById(subscription.getPaymentId());
     		if(payment.isPresent()) {
-    			subscriptionResponse.setPayment(payment.get());
+    			// get the payment model object
+    			Payment paymentValues = payment.get();
+    			// create the payment response model object
+    			PaymentResponse paymentResponse = new PaymentResponse();
+    			// set the payment model object id and createdAt attribute to the payment response
+    			paymentResponse.setId(paymentValues.getId());
+    			// get the payment method object with the payment method id from the payment object
+    			paymentResponse.setCreatedAt(paymentValues.getCreatedAt());
+    			Optional<PaymentMethod> paymentMethod = paymentMethodRepository.findById(paymentValues.getPaymentMethodId());
+        		if(paymentMethod.isPresent()) {
+        			// set the payment method object to payment response if it exist
+        			paymentResponse.setPaymentMethod(paymentMethod.get());
+        		}
+        		subscriptionResponse.setPayment(paymentResponse);
+
     		}
     		subscriptionResponses.add(subscriptionResponse);
         	
