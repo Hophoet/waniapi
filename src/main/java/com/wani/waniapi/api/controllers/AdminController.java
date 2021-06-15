@@ -437,7 +437,7 @@ public class AdminController {
                 .badRequest()
                 .body(
                     new ErrorResponse(
-                            400,
+                            404,
                             "subscription-plan/not-found",
                             "invalid subscription plan id"
                     )
@@ -454,8 +454,8 @@ public class AdminController {
         	                .badRequest()
         	                .body(
         	                    new ErrorResponse(
-        	                            404,
-        	                            "subscription-plan/can-not-be-update",
+        	                            400,
+        	                            "subscription-plan/have-subscription-in-progress",
         	                            "subscription plan can not be update, have subscription in progess"
         	                    )
         	      );
@@ -487,6 +487,24 @@ public class AdminController {
                         )
                     );
             }
+            // get the subscription plan object
+            SubscriptionPlan subscriptionPlanValues = subscriptionPlanRepository.findById(id).get();
+            // check if the subscription plan don't have a subscriptioin in progress
+            List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
+            for(Subscription subscription : subscriptions) {
+            	if(subscription.getDurationRemaining() > 0) {
+            		  return ResponseEntity
+            	                .badRequest()
+            	                .body(
+            	                    new ErrorResponse(
+            	                            400,
+            	                            "subscription-plan/have-subscription-in-progress",
+            	                            "subscription plan can not be update, have subscription in progess"
+            	                    )
+            	      );
+            	}
+            }
+            
             subscriptionPlanRepository.deleteById(id);
             return new ResponseEntity(HttpStatus.OK);
         }
