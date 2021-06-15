@@ -437,14 +437,31 @@ public class AdminController {
                 .badRequest()
                 .body(
                     new ErrorResponse(
-                            404,
+                            400,
                             "subscription-plan/not-found",
                             "invalid subscription plan id"
                     )
                 );
         }
+    
         // get the subscription plan object
         SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        // check if the subscription plan don't have a subscriptioin in progress
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
+        for(Subscription subscription : subscriptions) {
+        	if(subscription.getDurationRemaining() > 0) {
+        		  return ResponseEntity
+        	                .badRequest()
+        	                .body(
+        	                    new ErrorResponse(
+        	                            404,
+        	                            "subscription-plan/can-not-be-update",
+        	                            "subscription plan can not be update, have subscription in progess"
+        	                    )
+        	      );
+        	}
+        }
+        
         // update the subcription plan
         subscriptionPlanValues.setName(createSubscriptionPlanRequest.getName());
         subscriptionPlanValues.setDescription(createSubscriptionPlanRequest.getDescription());
