@@ -15,6 +15,8 @@ public class SubscriptionResponse {
 	private long createdAt;
 	private long endedAt;
 	private boolean paid = false;
+	 private int durationRemaining ;
+	 
 	public String getId() {
 		return id;
 	}
@@ -68,6 +70,12 @@ public class SubscriptionResponse {
 	}
 	public void setAmount(int amount) {
 		this.amount = amount;
+	}
+	public int getDurationRemaining() {
+		return durationRemaining;
+	}
+	public void setDurationRemaining(int durationRemaining) {
+		this.durationRemaining = durationRemaining;
 	}
 
 
