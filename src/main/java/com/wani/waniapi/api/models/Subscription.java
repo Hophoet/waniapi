@@ -17,6 +17,7 @@ public class Subscription {
     private long createdAt;
     private long endedAt;
     private boolean paid = false;
+    private int durationRemaining ;
     
     public Subscription(
         String userId, 
@@ -102,6 +103,14 @@ public class Subscription {
 
 	public void setAmount(int amount) {
 		this.amount = amount;
+	}
+
+	public int getDurationRemaining() {
+		return durationRemaining;
+	}
+
+	public void setDurationRemaining(int durationRemaining) {
+		this.durationRemaining = durationRemaining;
 	}
 
 
