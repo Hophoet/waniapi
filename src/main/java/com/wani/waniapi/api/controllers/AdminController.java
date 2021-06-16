@@ -1,5 +1,8 @@
 package com.wani.waniapi.api.controllers;
 
+
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
@@ -80,6 +83,10 @@ public class AdminController {
     
     @Autowired
     PasswordEncoder encoder;
+    
+    @Autowired
+    private JavaMailSender javaMailSender;
+    
 
     /**
      * USERS
@@ -374,6 +381,20 @@ public class AdminController {
             );
     }
 	
+    
+    void sendEmail(String email, String subject, String message) {
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("hophoet@gmail.com");
+        msg.setTo(email);
+        
+        msg.setSubject(subject);
+        msg.setText(message);
+
+        javaMailSender.send(msg);
+
+    }
+
     @PostMapping("user/forgot-password")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity forgotPassword(@RequestParam String email) {
@@ -381,11 +402,29 @@ public class AdminController {
 		String response = userService.forgotPassword(email);
 
 		if (!response.startsWith("Invalid")) {
+			
 			String url = "http://localhost:8089/api/auth/reset-password?token=" + response;
-            return new ResponseEntity<>(
-                url,
-                HttpStatus.OK
-             );
+			try {
+				this.sendEmail(email, "Reset your password", url);
+	            return new ResponseEntity<>(
+	                url,
+	                HttpStatus.OK
+	             );
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+		        return ResponseEntity
+				 .badRequest()
+		            .body(
+		                new ErrorResponse(
+		                        404,
+		                        "user/password-reset-failed",
+		                        "Password reset mail sent failed"
+		                )
+
+		            );
+			}
+		
 		}
         return ResponseEntity
             .badRequest()
@@ -399,6 +438,7 @@ public class AdminController {
             );
 
 	}
+    
 
     /*
      * SUBSCRIPTION PLAN
