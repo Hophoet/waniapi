@@ -24,6 +24,8 @@ import com.wani.waniapi.auth.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -64,6 +66,11 @@ public class AuthController {
 
     @Autowired
     PasswordEncoder encoder;
+    
+    @Autowired
+    private JavaMailSender javaMailSender;
+    
+
 
     @Autowired
     JwtUtils jwtUtils;
@@ -375,6 +382,18 @@ public class AuthController {
         }
     }
 
+    void sendEmail(String email, String subject, String message) {
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("hophoet@gmail.com");
+        msg.setTo(email);
+        
+        msg.setSubject(subject);
+        msg.setText(message);
+
+        javaMailSender.send(msg);
+
+    }
 
 
 	@PostMapping("auth/forgot-password")
@@ -384,10 +403,26 @@ public class AuthController {
 
 		if (!response.startsWith("Invalid")) {
 			String url = "http://localhost:8089/api/auth/reset-password?token=" + response;
-            return new ResponseEntity<>(
-                url,
-                HttpStatus.OK
-             );
+			try {
+				this.sendEmail(email, "Reset your password", url);
+	            return new ResponseEntity<>(
+	                url,
+	                HttpStatus.OK
+	             );
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+		        return ResponseEntity
+				 .badRequest()
+		            .body(
+		                new ErrorResponse(
+		                        404,
+		                        "user/password-reset-failed",
+		                        "Password reset mail sent failed"
+		                )
+
+		            );
+			}
 		}
         return ResponseEntity
             .badRequest()
