@@ -489,7 +489,7 @@ public class AdminController {
         // check if the subscription plan don't have a subscriptioin in progress
         List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
         for(Subscription subscription : subscriptions) {
-        	if(subscription.getDurationRemaining() > 0) {
+        	if(subscription.getTimeRemaining() > 0) {
         		  return ResponseEntity
         	                .badRequest()
         	                .body(
@@ -532,7 +532,7 @@ public class AdminController {
             // check if the subscription plan don't have a subscriptioin in progress
             List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
             for(Subscription subscription : subscriptions) {
-            	if(subscription.getDurationRemaining() > 0) {
+            	if(subscription.getTimeRemaining() > 0) {
             		  return ResponseEntity
             	                .badRequest()
             	                .body(
@@ -601,7 +601,7 @@ public class AdminController {
         	subscriptionResponse.setEndedAt(subscription.getEndedAt());
         	subscriptionResponse.setPaid(subscription.getPaid());
         	subscriptionResponse.setAmount(subscription.getAmount());
-        	subscriptionResponse.setDurationRemaining(subscription.getDurationRemaining());
+        	subscriptionResponse.setTimeRemaining(subscription.getTimeRemaining());
         	Optional<User> user = userRepository.findById(subscription.getUserId());
     		if(user.isPresent()) {
     			subscriptionResponse.setUser(user.get());
