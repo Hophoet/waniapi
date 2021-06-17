@@ -10,6 +10,8 @@ public class Interest {
     private String subscriptionId;
 	private int amount;
     private long createdAt;
+    private boolean paid;
+    private long lastPaymentAt;
     
     public Interest(String subscriptionId, int amount) {
     	this.subscriptionId = subscriptionId;
@@ -44,5 +46,21 @@ public class Interest {
 
 	public void setCreatedAt(long createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public boolean isPaid() {
+		return paid;
+	}
+
+	public void setPaid(boolean paid) {
+		this.paid = paid;
+	}
+
+	public long getLastPaymentAt() {
+		return lastPaymentAt;
+	}
+
+	public void setLastPaymentAt(long lastPaymentAt) {
+		this.lastPaymentAt = lastPaymentAt;
 	}
 }
