@@ -64,6 +64,16 @@ public class InterestController {
     @Autowired
     AccountRepository accountRepository;
     
+    /*
+     * get all interest payment
+     */
+    @GetMapping("/interests")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Interest> getInterests(){
+        List<Interest> interests = interestRepository.findAll();
+        return interests;
+    }
+    
     
     public InterestResponse payInterest(String subscriptionId) {
     	  // get the subscription
@@ -114,9 +124,13 @@ public class InterestController {
         // variable to check if it was a payment or not
         boolean paid = false;
         while(durationMillisMonths > 0) {
+        	// indicated that it was a payment
+        	if(!paid) paid = true;
+        	
         	// create the interest(calculate the interest, ..
         	int interestAmount = subscriptionValues.getAmount() * subscriptionPlanValues.getInterest() / 100;
         	Interest interest = new Interest(subscriptionValues.getId(), interestAmount);
+        	interest.setPaid(paid);
         	interestRepository.save(interest);
         	
         	
@@ -135,8 +149,6 @@ public class InterestController {
         	
         	
         	
-        	// indicated that it was a payment
-        	if(!paid) paid = true;
         	
         	// update the loop
         	--durationMillisMonths;
@@ -144,7 +156,10 @@ public class InterestController {
         
         InterestResponse interestResponse = new InterestResponse();
         int interestAmount = subscriptionValues.getAmount() * subscriptionPlanValues.getInterest() / 100;
-
+        int totalAmountPaid = interestAmount * (int) time;
+//        System.out.println("Interest amount "+interestAmount);
+//        System.out.println("Interest time"+time);
+//        System.out.print(interestAmount+"*"+time+" = "+interestAmount*time);
         interestResponse.setAmount(interestAmount);
         interestResponse.setSubscriptionId(
         		subscriptionValues.getId()
