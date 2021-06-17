@@ -154,7 +154,7 @@ public class SubscriptionController {
         		subscriptionPlanValues.getAmount()
         );
         // set the remaining duration
-        subscription.setDurationRemaining(
+        subscription.setTimeRemaining(
         		subscriptionPlanValues.getDuration()
         );
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
