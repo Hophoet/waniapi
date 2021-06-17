@@ -1,6 +1,8 @@
 package com.wani.waniapi.api.controllers;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -61,10 +63,132 @@ public class InterestController {
     
     @Autowired
     AccountRepository accountRepository;
+    
+    
+    public InterestResponse payInterest(String subscriptionId) {
+    	  // get the subscription
+        Optional<Subscription> subscription =  subscriptionRepository.findById(
+            subscriptionId
+        );
+        if(!subscription.isPresent()) {
+        	   return null;
+        }
+        // get the subscription model object
+        Subscription subscriptionValues = subscription.get();
+        // get the subscription plan
+        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
+            subscriptionValues.getSubscriptionPlanId()
+        );
+        if(!subscriptionPlan.isPresent()) {
+        	 return null;
+        }
+        // get the subscription plan model object
+        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        // get the user account if already exist or create if not
+        Optional<Account> account =  accountRepository.findByUserId(
+        		subscriptionValues.getUserId());
+        Account accountValues;
+        if(account.isPresent()) {
+        	accountValues = account.get();
+        }
+        else {
+        	Account newAccount = new Account(
+        			subscriptionValues.getUserId());
+        	accountValues = accountRepository.save(newAccount);
+        }
+        
+        // calculate de date before the interest creation
+        long subscriptionLastPaymentAtMillis = subscriptionValues.getLastPaymentAt();
+        long currentDateMillis = System.currentTimeMillis();
+        
+        
+        
+        // calculate the duration miliseconds(difference between the current and the create milliseconds
+        long durationMillis = currentDateMillis - subscriptionLastPaymentAtMillis;
+        
+        // calculation the duration millisecond day, mounth
+        long durationMillisDays = durationMillis / (1000L * 60 * 60 * 24);
+        long durationMillisMonths = durationMillis / (1000L * 60 * 60 * 24 * 30);
+        long time = durationMillisMonths;
+        
+        // variable to check if it was a payment or not
+        boolean paid = false;
+        while(durationMillisMonths > 0) {
+        	// create the interest(calculate the interest, ..
+        	int interestAmount = subscriptionValues.getAmount() * subscriptionPlanValues.getInterest() / 100;
+        	Interest interest = new Interest(subscriptionValues.getId(), interestAmount);
+        	interestRepository.save(interest);
+        	
+        	
+        	// update the user account amount
+        	accountValues.addAmount(interestAmount);
+        	accountRepository.save(accountValues);
+        	
+        	// update the subscription remaining duration (-1)
+        	subscriptionValues.setTimeRemaining(
+        			subscriptionValues.getTimeRemaining() - 1
+        	);
+        	// update the subscription last payment attribute
+        	subscriptionValues.setLastPaymentAt(System.currentTimeMillis());
+        	subscriptionRepository.save(subscriptionValues);
+        	
+        	
+        	
+        	
+        	// indicated that it was a payment
+        	if(!paid) paid = true;
+        	
+        	// update the loop
+        	--durationMillisMonths;
+        }
+        
+        InterestResponse interestResponse = new InterestResponse();
+        int interestAmount = subscriptionValues.getAmount() * subscriptionPlanValues.getInterest() / 100;
 
-    @PostMapping("/interest/create")
+        interestResponse.setAmount(interestAmount);
+        interestResponse.setSubscriptionId(
+        		subscriptionValues.getId()
+        );
+        interestResponse.setTime(time);
+        interestResponse.setTotalAmount((int)time * interestAmount);
+        interestResponse.setPaid(paid);
+        interestResponse.setLastPaymentAt(subscriptionValues.getLastPaymentAt());
+        interestResponse.setRemainingDays(30 - durationMillisDays);
+        
+        
+        // create the interest if the date is valid
+        
+        // desincrement the Durationremaining to the subscription
+        
+        
+        return interestResponse;
+    }
+
+     
+    @PostMapping("/interests/pay")
+    @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity payInterests(){
+    	// interests from the database
+    	List<Subscription> subscriptions = subscriptionRepository.findAll();
+    	// interests response
+    	List<InterestResponse> interestResponses = new ArrayList<>();
+    	
+    	//loop on the interests getted from the database
+    	for(Subscription subscription: subscriptions) {
+    		  // get the subscription
+	        
+    		InterestResponse interestResponse = this.payInterest(
+    				subscription.getId()
+    		);
+    		interestResponses.add(interestResponse);
+    	}
+        return ResponseEntity.ok(interestResponses);
+
+    }
+    
+    @PostMapping("/interest/pay")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-	 public ResponseEntity createInterest(
+	 public ResponseEntity payInterest(
 			 @AuthenticationPrincipal UserDetailsImpl userDetail,
 	         @Valid @RequestBody CreateInterestRequest createSubscriptionRequest
 	    ){
@@ -86,6 +210,7 @@ public class InterestController {
 	        }
 	        // get the subscription model object
 	        Subscription subscriptionValues = subscription.get();
+	      
 	        // get the subscription plan
 	        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
 	            subscriptionValues.getSubscriptionPlanId()
@@ -101,86 +226,10 @@ public class InterestController {
 	                           )
 	              );
 	        }
-	        // get the subscription plan model object
-	        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
-	        
-	        // get the user account if already exist or create if not
-	        Optional<Account> account =  accountRepository.findByUserId(
-		            userDetail.getId()
-		    );
-	        Account accountValues;
-	        if(account.isPresent()) {
-	        	accountValues = account.get();
-	        }
-	        else {
-	        	Account newAccount = new Account(userDetail.getId());
-	        	accountValues = accountRepository.save(newAccount);
-	        }
-	        
-	        // calculate de date before the interest creation
-	        long subscriptionLastPaymentAtMillis = subscriptionValues.getLastPaymentAt();
-	        long currentDateMillis = System.currentTimeMillis();
-	        
-	        
-	        
-	        // calculate the duration miliseconds(difference between the current and the create milliseconds
-	        long durationMillis = currentDateMillis - subscriptionLastPaymentAtMillis;
-	        
-	        // calculation the duration millisecond day, mounth
-	        long durationMillisDays = durationMillis / (1000L * 60 * 60 * 24);
-	        long durationMillisMonths = durationMillis / (1000L * 60 * 60 * 24 * 30);
-	        long time = durationMillisMonths;
-	        
-	        // variable to check if it was a payment or not
-	        boolean paid = false;
-	        while(durationMillisMonths > 0) {
-	        	// create the interest(calculate the interest, ..
-	        	int interestAmount = subscriptionValues.getAmount() * subscriptionPlanValues.getInterest() / 100;
-	        	Interest interest = new Interest(subscriptionValues.getId(), interestAmount);
-	        	interestRepository.save(interest);
-	        	
-	        	
-	        	// update the user account amount
-	        	accountValues.addAmount(interestAmount);
-	        	accountRepository.save(accountValues);
-	        	
-	        	// update the subscription remaining duration (-1)
-	        	subscriptionValues.setTimeRemaining(
-	        			subscriptionValues.getTimeRemaining() - 1
-	        	);
-	        	// update the subscription last payment attribute
-	        	subscriptionValues.setLastPaymentAt(System.currentTimeMillis());
-	        	subscriptionRepository.save(subscriptionValues);
-	        	
-	        	
-	        	
-	        	
-	        	// indicated that it was a payment
-	        	if(!paid) paid = true;
-	        	
-	        	// update the loop
-	        	--durationMillisMonths;
-	        }
-	        
-	        InterestResponse interestResponse = new InterestResponse();
-	        int interestAmount = subscriptionValues.getAmount() * subscriptionPlanValues.getInterest() / 100;
-
-	        interestResponse.setAmount(interestAmount);
-	        interestResponse.setSubscriptionId(
+	        InterestResponse interestResponse = this.payInterest(
 	        		subscriptionValues.getId()
-	        );
-	        interestResponse.setTime(time);
-	        interestResponse.setTotalAmount((int)time * interestAmount);
-	        interestResponse.setPaid(paid);
-	        interestResponse.setLastPaymentAt(subscriptionValues.getLastPaymentAt());
-	        interestResponse.setRemainingDays(30 - durationMillisDays);
-	        
-	        
-	        // create the interest if the date is valid
-	        
-	        // desincrement the Durationremaining to the subscription
-	        
-	        
+    		);
+	       
 	        return ResponseEntity.ok(interestResponse);
 	    }
 
