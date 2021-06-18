@@ -74,6 +74,20 @@ public class SubscriptionController {
                     )
                 );
         }
+        // get the suscription plan object
+        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        // check the availability of the subscription plan
+        if(subscriptionPlanValues.getAvailable() == null || subscriptionPlanValues.getAvailable() == false) {
+	       	 return ResponseEntity
+	                 .badRequest()
+	                 .body(
+	                     new ErrorResponse(
+	                             400,
+	                             "subscription-plan/not-available",
+	                             "subscription plan is not available"
+	                     )
+	                 );
+        }
         if(createSubscriptionRequest.getAmount() == null) {
         	 return ResponseEntity
                      .badRequest()
@@ -112,6 +126,19 @@ public class SubscriptionController {
                     )
                 );
         }
+        PaymentMethod paymentMethodObject = paymentMethod.get();
+        if(!paymentMethodObject.isActive()) {
+	       	 return ResponseEntity
+	                 .badRequest()
+	                 .body(
+	                     new ErrorResponse(
+	                             400,
+	                             "payment-method/not-available",
+	                             "payment method is not available"
+	                     )
+	                 );
+        	
+        }
         /** MUST GET THE AUTHENTICATED USER NOT BY THE USER ID */
         // get the user id
         Optional<User> user =  userRepository.findById(
@@ -130,15 +157,14 @@ public class SubscriptionController {
                 );
         }
         User userObject = user.get();
-        PaymentMethod paymentMethodObject = paymentMethod.get();
+      
         // create payment
         Payment payment = new Payment(
             userObject.getId(),
             paymentMethodObject.getId()
         );
         Payment paymentObject = paymentRepository.save(payment);
-        // get the suscription plan object
-        SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        
         //create subscription
         Subscription subscription = new Subscription(
             userObject.getId(),
@@ -154,7 +180,7 @@ public class SubscriptionController {
         		subscriptionPlanValues.getAmount()
         );
         // set the remaining duration
-        subscription.setDurationRemaining(
+        subscription.setTimeRemaining(
         		subscriptionPlanValues.getDuration()
         );
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
