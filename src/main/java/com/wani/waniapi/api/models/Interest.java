@@ -1,5 +1,7 @@
 package com.wani.waniapi.api.models;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,10 +12,12 @@ public class Interest {
     private String subscriptionId;
 	private int amount;
     private long createdAt;
+    private boolean paid;
     
     public Interest(String subscriptionId, int amount) {
     	this.subscriptionId = subscriptionId;
     	this.setAmount(amount);
+         this.createdAt = System.currentTimeMillis();
     }
     
     public String getId() {
@@ -45,4 +49,14 @@ public class Interest {
 	public void setCreatedAt(long createdAt) {
 		this.createdAt = createdAt;
 	}
+
+	public boolean isPaid() {
+		return paid;
+	}
+
+	public void setPaid(boolean paid) {
+		this.paid = paid;
+	}
+
+
 }

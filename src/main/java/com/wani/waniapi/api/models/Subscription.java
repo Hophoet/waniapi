@@ -15,9 +15,10 @@ public class Subscription {
     private String phoneNumber;
 	private int amount;
     private long createdAt;
+    private long lastPaymentAt;
     private long endedAt;
     private boolean paid = false;
-    private int durationRemaining ;
+    private int timeRemaining ;
     
     public Subscription(
         String userId, 
@@ -30,6 +31,7 @@ public class Subscription {
         this.paymentId = paymentId;
         Date currentDate = new Date();
         this.createdAt = currentDate.getTime();
+        this.lastPaymentAt =  currentDate.getTime();
         this.phoneNumber = phoneNumber;
     }
 
@@ -105,12 +107,23 @@ public class Subscription {
 		this.amount = amount;
 	}
 
-	public int getDurationRemaining() {
-		return durationRemaining;
+	
+
+	public int getTimeRemaining() {
+		return timeRemaining;
 	}
 
-	public void setDurationRemaining(int durationRemaining) {
-		this.durationRemaining = durationRemaining;
+	public void setTimeRemaining(int timeRemaining) {
+		this.timeRemaining = timeRemaining;
+	}
+
+
+	public long getLastPaymentAt() {
+		return lastPaymentAt;
+	}
+
+	public void setLastPaymentAt(long lastPaymentAt) {
+		this.lastPaymentAt = lastPaymentAt;
 	}
 
 

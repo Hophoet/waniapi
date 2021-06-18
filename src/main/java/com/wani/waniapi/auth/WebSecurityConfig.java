@@ -25,6 +25,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         // jsr250Enabled = true,
         prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	private static final String[] AUTH_WHITELIST = {
+	        "/swagger-resources/**",
+	        "/swagger-ui.html",
+	        "/swagger-ui/**",
+	        "/v2/api-docs",
+	        "/webjars/**"
+	};
+	
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
@@ -59,7 +68,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/test/**").permitAll()
+                .antMatchers("/spring-security-rest/**").permitAll()
+                .antMatchers("/v2/**").permitAll()
                 .antMatchers("/api/v1/file/**").permitAll()
+                .antMatchers("/api/v2/**").permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
