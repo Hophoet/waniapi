@@ -9,6 +9,7 @@ public class PaymentMethod {
     private String id;
     private String name;
     private String description;
+    private boolean isActive;
 
 
     public PaymentMethod(
@@ -17,6 +18,7 @@ public class PaymentMethod {
     ) {
         this.name = name;
         this.description = description;
+        this.setActive(true);
     }
 
     public String getName() {
@@ -44,4 +46,14 @@ public class PaymentMethod {
     public void setDescription(String description) {
         this.description = description;
     }
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+    
+  
 }

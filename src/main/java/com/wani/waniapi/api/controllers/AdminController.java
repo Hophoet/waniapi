@@ -1,17 +1,25 @@
 package com.wani.waniapi.api.controllers;
 
+
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
 import com.wani.waniapi.api.models.File;
+import com.wani.waniapi.api.models.Payment;
+import com.wani.waniapi.api.models.PaymentMethod;
+import com.wani.waniapi.api.models.PaymentResponse;
 import com.wani.waniapi.api.models.Subscription;
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.services.UserService;
 import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
+import com.wani.waniapi.api.serializers.SubscriptionSerializer;
 import com.wani.waniapi.api.repositories.FileRepository;
-
+import com.wani.waniapi.api.repositories.PaymentMethodRepository;
+import com.wani.waniapi.api.repositories.PaymentRepository;
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.auth.playload.response.MessageResponse;
 import com.wani.waniapi.auth.playload.request.UpdateRequest;
@@ -22,8 +30,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.wani.waniapi.auth.playload.request.SignupRequest;
+import com.wani.waniapi.api.playload.request.paymentmethod.CreatePaymentMethodRequest;
 import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.models.SubscriptionPlan;
+import com.wani.waniapi.api.models.SubscriptionResponse;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,9 +63,17 @@ public class AdminController {
 
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    PaymentMethodRepository paymentMethodRepository;
+    
+    @Autowired
+    PaymentRepository paymentRepository;
+
 
     @Autowired
     RoleRepository roleRepository;
+    
 
     @Autowired
     SubscriptionPlanRepository subscriptionPlanRepository;
@@ -64,6 +83,10 @@ public class AdminController {
     
     @Autowired
     PasswordEncoder encoder;
+    
+    @Autowired
+    private JavaMailSender javaMailSender;
+    
 
     /**
      * USERS
@@ -72,7 +95,15 @@ public class AdminController {
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsers(){
+    	
+        String img = "http://localhost:8089/api/v1/file/image/";
+
         List<User> users = userRepository.findAll();
+        for(User user: users) {
+        	if(user.getImage() != null) {
+            	user.setImage(img+user.getImage());
+        	}
+        }
         return users;
     }
 
@@ -83,7 +114,12 @@ public class AdminController {
         if(!user.isPresent()){
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.ok(user);
+        String img = "http://localhost:8089/api/v1/file/image/";
+        User userValue = user.get();
+        if(userValue.getImage() != null) {
+        	userValue.setImage(img+userValue.getImage());
+        }
+        return ResponseEntity.ok(userValue);
     }
     
     @DeleteMapping("/user/{id}/delete")
@@ -174,6 +210,10 @@ public class AdminController {
         if(updateRequest.getIsActive() != null) {
             userValues.setIsActive(updateRequest.getIsActive());
         }
+        String img = "http://localhost:8089/api/v1/file/image/";
+        if(userValues.getImage() != null) {
+        	userValues.setImage(img+userValues.getImage());
+        }
         //TODO update the user
         return ResponseEntity.ok(userRepository.save(userValues));
     }
@@ -249,15 +289,28 @@ public class AdminController {
     @PostMapping("/user/create")
     public ResponseEntity<?> createUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+        	   return ResponseEntity
+                       .badRequest()
+                       .body(
+                           new ErrorResponse(
+                                   400,
+                                   "user/username-already-used",
+                                   "Username is already taken!"
+                           )
+
+                       );
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "user/email-already-used",
+                                "Email is already taken!"
+                        )
+                    );
         }
 
         // Create new user's account
@@ -328,6 +381,20 @@ public class AdminController {
             );
     }
 	
+    
+    void sendEmail(String email, String subject, String message) {
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("hophoet@gmail.com");
+        msg.setTo(email);
+        
+        msg.setSubject(subject);
+        msg.setText(message);
+
+        javaMailSender.send(msg);
+
+    }
+
     @PostMapping("user/forgot-password")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity forgotPassword(@RequestParam String email) {
@@ -335,11 +402,29 @@ public class AdminController {
 		String response = userService.forgotPassword(email);
 
 		if (!response.startsWith("Invalid")) {
+			
 			String url = "http://localhost:8089/api/auth/reset-password?token=" + response;
-            return new ResponseEntity<>(
-                url,
-                HttpStatus.OK
-             );
+			try {
+				this.sendEmail(email, "Reset your password", url);
+	            return new ResponseEntity<>(
+	                url,
+	                HttpStatus.OK
+	             );
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+		        return ResponseEntity
+				 .badRequest()
+		            .body(
+		                new ErrorResponse(
+		                        404,
+		                        "user/password-reset-failed",
+		                        "Password reset mail sent failed"
+		                )
+
+		            );
+			}
+		
 		}
         return ResponseEntity
             .badRequest()
@@ -353,6 +438,7 @@ public class AdminController {
             );
 
 	}
+    
 
     /*
      * SUBSCRIPTION PLAN
@@ -397,8 +483,25 @@ public class AdminController {
                     )
                 );
         }
+    
         // get the subscription plan object
         SubscriptionPlan subscriptionPlanValues = subscriptionPlan.get();
+        // check if the subscription plan don't have a subscriptioin in progress
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
+        for(Subscription subscription : subscriptions) {
+        	if(subscription.getDurationRemaining() > 0) {
+        		  return ResponseEntity
+        	                .badRequest()
+        	                .body(
+        	                    new ErrorResponse(
+        	                            400,
+        	                            "subscription-plan/have-subscription-in-progress",
+        	                            "subscription plan can not be update, have subscription in progess"
+        	                    )
+        	      );
+        	}
+        }
+        
         // update the subcription plan
         subscriptionPlanValues.setName(createSubscriptionPlanRequest.getName());
         subscriptionPlanValues.setDescription(createSubscriptionPlanRequest.getDescription());
@@ -424,6 +527,24 @@ public class AdminController {
                         )
                     );
             }
+            // get the subscription plan object
+            SubscriptionPlan subscriptionPlanValues = subscriptionPlanRepository.findById(id).get();
+            // check if the subscription plan don't have a subscriptioin in progress
+            List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
+            for(Subscription subscription : subscriptions) {
+            	if(subscription.getDurationRemaining() > 0) {
+            		  return ResponseEntity
+            	                .badRequest()
+            	                .body(
+            	                    new ErrorResponse(
+            	                            400,
+            	                            "subscription-plan/have-subscription-in-progress",
+            	                            "subscription plan can not be update, have subscription in progess"
+            	                    )
+            	      );
+            	}
+            }
+            
             subscriptionPlanRepository.deleteById(id);
             return new ResponseEntity(HttpStatus.OK);
         }
@@ -468,9 +589,49 @@ public class AdminController {
     
     @GetMapping("/subscriptions")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Subscription> getSubscriptions(){
+    public List<SubscriptionResponse> getSubscriptions(){
+    	List<SubscriptionResponse> subscriptionResponses = new ArrayList<>();
         List<Subscription> subscriptions = subscriptionRepository.findAll();
-        return subscriptions;
+        for(Subscription subscription: subscriptions) {
+        
+        	SubscriptionResponse subscriptionResponse = SubscriptionSerializer.serializer(subscription);
+        	subscriptionResponse.setId(subscription.getId());
+        	subscriptionResponse.setPhoneNumber(subscription.getPhoneNumber());
+        	subscriptionResponse.setCreatedAt(subscription.getCreatedAt());
+        	subscriptionResponse.setEndedAt(subscription.getEndedAt());
+        	subscriptionResponse.setPaid(subscription.getPaid());
+        	subscriptionResponse.setAmount(subscription.getAmount());
+        	subscriptionResponse.setDurationRemaining(subscription.getDurationRemaining());
+        	Optional<User> user = userRepository.findById(subscription.getUserId());
+    		if(user.isPresent()) {
+    			subscriptionResponse.setUser(user.get());
+    		}
+    		Optional<SubscriptionPlan> subscriptionPlan = subscriptionPlanRepository.findById(subscription.getSubscriptionPlanId());
+    		if(subscriptionPlan.isPresent()) {
+    			subscriptionResponse.setSubscriptionPlan(subscriptionPlan.get());
+    		}
+    		Optional<Payment> payment = paymentRepository.findById(subscription.getPaymentId());
+    		if(payment.isPresent()) {
+    			// get the payment model object
+    			Payment paymentValues = payment.get();
+    			// create the payment response model object
+    			PaymentResponse paymentResponse = new PaymentResponse();
+    			// set the payment model object id and createdAt attribute to the payment response
+    			paymentResponse.setId(paymentValues.getId());
+    			// get the payment method object with the payment method id from the payment object
+    			paymentResponse.setCreatedAt(paymentValues.getCreatedAt());
+    			Optional<PaymentMethod> paymentMethod = paymentMethodRepository.findById(paymentValues.getPaymentMethodId());
+        		if(paymentMethod.isPresent()) {
+        			// set the payment method object to payment response if it exist
+        			paymentResponse.setPaymentMethod(paymentMethod.get());
+        		}
+        		subscriptionResponse.setPayment(paymentResponse);
+
+    		}
+    		subscriptionResponses.add(subscriptionResponse);
+        	
+        }
+        return subscriptionResponses;
     }
     
     @GetMapping("/subscription-plan/{subscriptionPlanId}/users")
@@ -490,7 +651,92 @@ public class AdminController {
         return users;
     }
 
+  
+    /*
+     * PAYMENT METHOD
+     */
+    @GetMapping("/payment-methods")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<PaymentMethod> getPaymentMethods(){
+        List<PaymentMethod> paymentMethods = paymentMethodRepository.findAll();
+        return paymentMethods;
+    }
+    
+    @PutMapping("/payment-method/{id}/toggle")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity togglePaymentMethodState(
+        @PathVariable String id
+    ){
+    	   // get the user
+        Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(id);
+        // check if the user exists
+        if(!paymentMethod.isPresent()){
+              return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "payment-method/not-found",
+                                "Payment method not found, invalid payment method id"
+                        )
 
+                    );
+
+        }
+        PaymentMethod paymentMethodValue = paymentMethod.get();
+        paymentMethodValue.setActive(!paymentMethodValue.isActive());
+        
+        PaymentMethod updatePaymentMethod = paymentMethodRepository.save(paymentMethodValue);
+ 
+        return ResponseEntity.ok(updatePaymentMethod);
+        
+    	
+    }
+    
+    @PostMapping("/payment-method/create")
+    public ResponseEntity<?> createPaymentMethod(@Valid @RequestBody CreatePaymentMethodRequest createPaymentMethodRequest) {
+        PaymentMethod paymentMethod = new PaymentMethod(
+        		createPaymentMethodRequest.getName(), 
+        		createPaymentMethodRequest.getDescription()
+        );
+        if(createPaymentMethodRequest.getIsActive() != null) {
+        	paymentMethod.setActive(createPaymentMethodRequest.getIsActive());
+        }
+        PaymentMethod createdPaymentMethod = paymentMethodRepository.save(paymentMethod);
+        return ResponseEntity.ok(createdPaymentMethod);
+    }
+    
+    @PutMapping("/payment-method/{id}/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity updatePaymentMethod(
+        @PathVariable String id, 
+        @Valid @RequestBody CreatePaymentMethodRequest createPaymentMethodRequest
+    ){
+        // get the user
+        Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(id);
+
+        if(!paymentMethod.isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "payment-method/not-found",
+                                "Payment method not found, invalid payment method id"
+                        )
+                    );
+        }
+        PaymentMethod paymentMethodValues = paymentMethod.get();
+        paymentMethodValues.setName(createPaymentMethodRequest.getName());
+        paymentMethodValues.setDescription(createPaymentMethodRequest.getDescription());
+        if(createPaymentMethodRequest.getIsActive() != null) {
+        	paymentMethodValues.setActive(createPaymentMethodRequest.getIsActive());
+        }
+        PaymentMethod updatedPaymentMethod = paymentMethodRepository.save(paymentMethodValues);
+        return ResponseEntity.ok(updatedPaymentMethod);
+
+    }
+    
     
 
 
