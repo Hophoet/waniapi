@@ -33,6 +33,7 @@ import com.wani.waniapi.auth.playload.request.SignupRequest;
 import com.wani.waniapi.api.playload.request.paymentmethod.CreatePaymentMethodRequest;
 import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.models.SubscriptionPlan;
+import com.wani.waniapi.api.models.SubscriptionPlanResponse;
 import com.wani.waniapi.api.models.SubscriptionResponse;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,7 +60,6 @@ public class AdminController {
     @Autowired
     FileRepository fileRepository;
     
-
 
     @Autowired
     UserRepository userRepository;
@@ -552,11 +552,42 @@ public class AdminController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
-
+    public SubscriptionPlanResponse _getSubscriptionPlanResponse(SubscriptionPlan subscriptionPlan) {
+    	SubscriptionPlanResponse subscriptionPlanResponse = new SubscriptionPlanResponse();
+    	subscriptionPlanResponse.setId(
+    			subscriptionPlan.getId());
+    	subscriptionPlanResponse.setName(
+    			subscriptionPlan.getName());
+    	subscriptionPlanResponse.setDescription(
+    			subscriptionPlan.getDescription());
+    	subscriptionPlanResponse.setAmount(
+    			subscriptionPlan.getAmount());
+    	subscriptionPlanResponse.setInterest(
+    			subscriptionPlan.getInterest());
+    	subscriptionPlanResponse.setAvailable(
+    			subscriptionPlan.getAvailable());
+    	subscriptionPlanResponse.setDuration(
+    			subscriptionPlan.getDuration());
+    	subscriptionPlanResponse.setCreatedAt(
+    			subscriptionPlan.getCreatedAt());
+    	List<Subscription> spSubscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlan.getId());
+    	
+    	subscriptionPlanResponse.setSubscriptionsCount(
+    			spSubscriptions.size()
+    	);
+    	return subscriptionPlanResponse;
+    }
+    
     @GetMapping("/subscription-plans")
-    public List<SubscriptionPlan> getSubscriptionPlans(){
+    public List<SubscriptionPlanResponse> getSubscriptionPlans(){
+    	List<SubscriptionPlanResponse> subscriptionPlanResponses = new ArrayList<>();
         List<SubscriptionPlan> subscriptionPlans = subscriptionPlanRepository.findAll();
-        return subscriptionPlans;
+        for(SubscriptionPlan sp: subscriptionPlans) {
+        	subscriptionPlanResponses.add(
+        			this._getSubscriptionPlanResponse(sp)
+        	);
+        }
+        return subscriptionPlanResponses;
     }
 
     @GetMapping("/subscription-plan/{id}")
