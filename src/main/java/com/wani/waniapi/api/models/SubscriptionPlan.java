@@ -1,10 +1,19 @@
 package com.wani.waniapi.api.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.wani.waniapi.api.repositories.SubscriptionRepository;
+
 @Document(collection = "subscriptionPlans")
 public class SubscriptionPlan {
+    @Autowired
+    SubscriptionRepository subscriptionRepository;
+
     @Id
     private String id;
     private String name;
@@ -52,6 +61,7 @@ public class SubscriptionPlan {
         this.createdAt = 20390;
         this.available = available;
         this.subscriptionsCount = 0;
+
     }
 
 
@@ -124,5 +134,7 @@ public class SubscriptionPlan {
     public void setSubscriptionsCount(Integer sC) {
         this.subscriptionsCount = sC;
     }
-
+    
+  
+   
 }
