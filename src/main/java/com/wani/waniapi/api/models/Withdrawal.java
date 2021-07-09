@@ -1,5 +1,7 @@
 package com.wani.waniapi.api.models;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,23 +9,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Withdrawal {
 	@Id
     private String id;
-	private String userId;
+	private String accountId;
     private String paymentMethodId;
-    private String phoneNumber;
 	private int amount;
-    private long createdAt;
+    private LocalDateTime createdAt;
     
     public Withdrawal(
-    		String userId,
-    		String phoneNumber,
+    		String accountId,
     		String paymentMethodId,
     		int amount
     		) {
-    	this.userId = userId;
-    	this.phoneNumber = phoneNumber;
-    	this.setPaymentMethodId(paymentMethodId);
+    	this.accountId = accountId;
+    	this.paymentMethodId = paymentMethodId;
     	this.amount = amount;
-    	this.createdAt = System.currentTimeMillis();
+    	this.createdAt = LocalDateTime.now();
     }
     
 	public String getId() {
@@ -32,30 +31,12 @@ public class Withdrawal {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getUserId() {
-		return userId;
-	}
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
 
 	public int getAmount() {
 		return amount;
 	}
 	public void setAmount(int amount) {
 		this.amount = amount;
-	}
-	public long getCreatedAt() {
-		return createdAt;
-	}
-	public void setCreatedAt(long createdAt) {
-		this.createdAt = createdAt;
-	}
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
 	}
 
 	public String getPaymentMethodId() {
@@ -64,6 +45,22 @@ public class Withdrawal {
 
 	public void setPaymentMethodId(String paymentMethodId) {
 		this.paymentMethodId = paymentMethodId;
+	}
+
+	public String getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 
 }
