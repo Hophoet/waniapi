@@ -1,5 +1,7 @@
 package com.wani.waniapi.api.models;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 
 public class SubscriptionPlanResponse {
@@ -7,13 +9,15 @@ public class SubscriptionPlanResponse {
     private String id;
     private String name;
     private String description;
-    private Integer amount;
-    private Integer interest;
+    private Integer min_amount;
+    private Integer max_amount;
+    private Integer frequency;
+    private Integer roip;
     private Boolean available;
     private Integer duration;
-    private Integer createdAt;
+    private LocalDateTime createdAt;
     private Integer subscriptionsCount;
-    
+
 	public String getId() {
 		return id;
 	}
@@ -32,18 +36,7 @@ public class SubscriptionPlanResponse {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Integer getAmount() {
-		return amount;
-	}
-	public void setAmount(Integer amount) {
-		this.amount = amount;
-	}
-	public Integer getInterest() {
-		return interest;
-	}
-	public void setInterest(Integer interest) {
-		this.interest = interest;
-	}
+	
 	public Boolean getAvailable() {
 		return available;
 	}
@@ -56,10 +49,34 @@ public class SubscriptionPlanResponse {
 	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
-	public Integer getCreatedAt() {
+	public Integer getMin_amount() {
+		return min_amount;
+	}
+	public void setMin_amount(Integer min_amount) {
+		this.min_amount = min_amount;
+	}
+	public Integer getMax_amount() {
+		return max_amount;
+	}
+	public void setMax_amount(Integer max_amount) {
+		this.max_amount = max_amount;
+	}
+	public Integer getFrequency() {
+		return frequency;
+	}
+	public void setFrequency(Integer frequency) {
+		this.frequency = frequency;
+	}
+	public Integer getRoip() {
+		return roip;
+	}
+	public void setRoip(Integer roip) {
+		this.roip = roip;
+	}
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
-	public void setCreatedAt(Integer createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 	public Integer getSubscriptionsCount() {
@@ -68,4 +85,5 @@ public class SubscriptionPlanResponse {
 	public void setSubscriptionsCount(Integer subscriptionsCount) {
 		this.subscriptionsCount = subscriptionsCount;
 	}
+
 }
