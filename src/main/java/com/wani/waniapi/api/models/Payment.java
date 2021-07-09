@@ -1,6 +1,8 @@
 package com.wani.waniapi.api.models;
 
-import com.wani.waniapi.auth.models.User;
+
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -8,17 +10,31 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Payment {
     @Id
     private String id;
-    private String userId;
+    private String accountId;
     private String paymentMethodId;
-    private Integer createdAt;
+    private LocalDateTime createdAt;
+    private Integer amount;
 
     public Payment(
-        String userId, 
+        String accountId, 
+        Integer amount,
         String paymentMethodId
     ) {
-        this.userId = userId;
+        this.setAccountId(accountId);
         this.paymentMethodId = paymentMethodId;
-        this.createdAt = 20390;
+        this.setAmount(amount);
+    	this.setCreatedAt(LocalDateTime.now());
+    }
+    
+
+    public Payment(
+        String accountId, 
+        Integer amount
+    ) {
+        this.setAccountId(accountId);
+        this.setAmount(amount);
+    	this.setCreatedAt(LocalDateTime.now());
+    	// must set the default payment
     }
 
     public String getId() {
@@ -29,13 +45,7 @@ public class Payment {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+ 
 
     public String getPaymentMethodId() {
         return paymentMethodId;
@@ -45,13 +55,30 @@ public class Payment {
         this.paymentMethodId = paymentMethodId;
     }
 
-    public Integer getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(Integer createdAt) {
-        this.createdAt = createdAt;
-    }
+	public String getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Integer getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Integer amount) {
+		this.amount = amount;
+	}
 
 
 }
