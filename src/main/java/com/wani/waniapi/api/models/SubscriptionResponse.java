@@ -1,62 +1,44 @@
 package com.wani.waniapi.api.models;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 
-import com.wani.waniapi.auth.models.User;
 
 public class SubscriptionResponse {
 	@Id
 	private String id;
-	private User user;
+	private Account account;
 	private SubscriptionPlan subscriptionPlan;
 	private PaymentResponse payment;
-	private String phoneNumber;
 	private int amount;
-	private long createdAt;
-    private long lastPaymentAt;
-	private long endedAt;
-	private boolean paid = false;
-	private int timeRemaining ;
+    private LocalDateTime createdAt;
+    private LocalDateTime endedAt;
+    private long lastInterestPaymentAt;
+    private long nextInterestPaymentAt;
+    private boolean paid = false;
+    private int timeRemaining ;
 	 
 	public String getId() {
 		return id;
 	}
-	public User getUser() {
-		return user;
-	}
+
 	public SubscriptionPlan getSubscriptionPlan() {
 		return subscriptionPlan;
 	}
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-	public long getCreatedAt() {
-		return createdAt;
-	}
-	public long getEndedAt() {
-		return endedAt;
-	}
+
 	public boolean isPaid() {
 		return paid;
 	}
 	public void setId(String id) {
 		this.id = id;
 	}
-	public void setUser(User user) {
-		this.user = user;
-	}
+
 	public void setSubscriptionPlan(SubscriptionPlan subscriptionPlan) {
 		this.subscriptionPlan = subscriptionPlan;
 	}
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
-	public void setCreatedAt(long createdAt) {
-		this.createdAt = createdAt;
-	}
-	public void setEndedAt(long endedAt) {
-		this.endedAt = endedAt;
-	}
+
+	
 	public void setPaid(boolean paid) {
 		this.paid = paid;
 	}
@@ -79,13 +61,37 @@ public class SubscriptionResponse {
 	public void setTimeRemaining(int timeRemaining) {
 		this.timeRemaining = timeRemaining;
 	}
+	public Account getAccount() {
+		return account;
+	}
+	public void setAccount(Account account) {
+		this.account = account;
+	}
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+	public LocalDateTime getEndedAt() {
+		return endedAt;
+	}
+	public void setEndedAt(LocalDateTime endedAt) {
+		this.endedAt = endedAt;
+	}
+	public long getLastInterestPaymentAt() {
+		return lastInterestPaymentAt;
+	}
+	public void setLastInterestPaymentAt(long lastInterestPaymentAt) {
+		this.lastInterestPaymentAt = lastInterestPaymentAt;
+	}
+	public long getNextInterestPaymentAt() {
+		return nextInterestPaymentAt;
+	}
+	public void setNextInterestPaymentAt(long nextInterestPaymentAt) {
+		this.nextInterestPaymentAt = nextInterestPaymentAt;
+	}
 
-	public long getLastPaymentAt() {
-		return lastPaymentAt;
-	}
-	public void setLastPaymentAt(long lastPaymentAt) {
-		this.lastPaymentAt = lastPaymentAt;
-	}
 
 
 
