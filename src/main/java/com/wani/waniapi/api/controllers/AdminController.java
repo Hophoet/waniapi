@@ -323,9 +323,16 @@ public class AdminController {
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
         //check the user signup reference
-        if(signUpRequest.getReference() != null){
+        if(signUpRequest.getRefUsername() != null){
             //set the user reference
-            user.setReference(signUpRequest.getReference());
+        	String refUsername = signUpRequest.getRefUsername();
+
+            // get the user
+            Optional<User> refUser =  userRepository.findByUsername(refUsername);
+            // check if the ref user exists
+            if(refUser.isPresent()){            		
+                  user.setReference(refUser.get().getId());
+            }        	
         }
         //check the user signup first name
         if(signUpRequest.getFirstName() != null){
@@ -453,13 +460,84 @@ public class AdminController {
     public ResponseEntity<?> createSubscriptionPlan(
            @Valid @RequestBody CreateSubscriptionPlanRequest createSubscriptionPlanRequest
     ) {
+    	
+    	if(createSubscriptionPlanRequest.getMinAmount() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/min-amount-is-required",
+                                "subscription plan mininmum amount is required"
+                        )
+                    );
+    	}
+    	if(createSubscriptionPlanRequest.getMaxAmount() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/max-amount-is-required",
+                                "subscription plan maximum amount is required"
+                        )
+                    );
+    	}
+    	if(createSubscriptionPlanRequest.getFrequency() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/frequency-is-required",
+                                "subscription plan frequency is required"
+                        )
+                    );
+    	}
+       	if(createSubscriptionPlanRequest.getRoip() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/roip-is-required",
+                                "subscription plan return on investment percentage is required"
+                        )
+                    );
+    	}
+       	if(createSubscriptionPlanRequest.getDuration() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/duration-is-required",
+                                "subscription plan duration is required"
+                        )
+                    );
+    	}
+       	
+      	
+       	if(createSubscriptionPlanRequest.getMinAmount() > createSubscriptionPlanRequest.getMaxAmount()) {
+       		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/min-amount-biger-than-max-amount",
+                                "subscription plan max amount must be big or equal to min amount"
+                        )
+                    );
+       	}
+
+    	
 
         // Create new subscription plan
         SubscriptionPlan subscriptionPlan = new SubscriptionPlan(
             createSubscriptionPlanRequest.getName(),
             createSubscriptionPlanRequest.getDescription(),
-            createSubscriptionPlanRequest.getMin_amount(),
-            createSubscriptionPlanRequest.getMax_amount(),
+            createSubscriptionPlanRequest.getMinAmount(),
+            createSubscriptionPlanRequest.getMaxAmount(),
             createSubscriptionPlanRequest.getFrequency(),
             createSubscriptionPlanRequest.getRoip(),
             createSubscriptionPlanRequest.getDuration(),
@@ -496,7 +574,6 @@ public class AdminController {
         // check if the subscription plan don't have a subscriptioin in progress
         List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
         for(Subscription subscription : subscriptions) {
-        	if(subscription.getTimeRemaining() > 0) {
         		  return ResponseEntity
         	                .badRequest()
         	                .body(
@@ -506,14 +583,81 @@ public class AdminController {
         	                            "subscription plan can not be update, have subscription in progess"
         	                    )
         	      );
-        	}
+        	
         }
+    	if(createSubscriptionPlanRequest.getMinAmount() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/min-amount-is-required",
+                                "subscription plan mininmum amount is required"
+                        )
+                    );
+    	}
+    	if(createSubscriptionPlanRequest.getMaxAmount() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/max-amount-is-required",
+                                "subscription plan maximum amount is required"
+                        )
+                    );
+    	}
+    	if(createSubscriptionPlanRequest.getFrequency() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/frequency-is-required",
+                                "subscription plan frequency is required"
+                        )
+                    );
+    	}
+       	if(createSubscriptionPlanRequest.getRoip() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/roip-is-required",
+                                "subscription plan return on investment percentage is required"
+                        )
+                    );
+    	}
+       	if(createSubscriptionPlanRequest.getDuration() == null) {
+    		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/duration-is-required",
+                                "subscription plan duration is required"
+                        )
+                    );
+    	}
+       	
+       	if(createSubscriptionPlanRequest.getMinAmount() > createSubscriptionPlanRequest.getMaxAmount()) {
+       		return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                404,
+                                "subscription-plan/min-amount-biger-than-max-amount",
+                                "subscription plan max amount must be big or equal to min amount"
+                        )
+                    );
+       	}
         
         // update the subcription plan
         subscriptionPlanValues.setName(createSubscriptionPlanRequest.getName());
         subscriptionPlanValues.setDescription(createSubscriptionPlanRequest.getDescription());
-        subscriptionPlanValues.setMin_amount(createSubscriptionPlanRequest.getMin_amount());
-        subscriptionPlanValues.setMax_amount(createSubscriptionPlanRequest.getMax_amount());
+        subscriptionPlanValues.setMinAmount(createSubscriptionPlanRequest.getMinAmount());
+        subscriptionPlanValues.setMaxAmount(createSubscriptionPlanRequest.getMaxAmount());
         subscriptionPlanValues.setRoip(createSubscriptionPlanRequest.getRoip());
         subscriptionPlanValues.setDuration(createSubscriptionPlanRequest.getDuration());
         subscriptionPlanValues.setFrequency(createSubscriptionPlanRequest.getFrequency());
@@ -542,7 +686,6 @@ public class AdminController {
             // check if the subscription plan don't have a subscriptioin in progress
             List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
             for(Subscription subscription : subscriptions) {
-            	if(subscription.getTimeRemaining() > 0) {
             		  return ResponseEntity
             	                .badRequest()
             	                .body(
@@ -552,7 +695,7 @@ public class AdminController {
             	                            "subscription plan can not be update, have subscription in progess"
             	                    )
             	      );
-            	}
+            	
             }
             
             subscriptionPlanRepository.deleteById(id);
@@ -568,8 +711,8 @@ public class AdminController {
     	subscriptionPlanResponse.setId(subscriptionPlan.getId());
     	subscriptionPlanResponse.setName(subscriptionPlan.getName());
     	subscriptionPlanResponse.setDescription(subscriptionPlan.getDescription());
-    	subscriptionPlanResponse.setMin_amount(subscriptionPlan.getMin_amount());
-    	subscriptionPlanResponse.setMax_amount(subscriptionPlan.getMax_amount());
+    	subscriptionPlanResponse.setMinAmount(subscriptionPlan.getMinAmount());
+    	subscriptionPlanResponse.setMaxAmount(subscriptionPlan.getMaxAmount());
     	subscriptionPlanResponse.setFrequency(subscriptionPlan.getFrequency());
     	subscriptionPlanResponse.setRoip(subscriptionPlan.getRoip());
     	subscriptionPlanResponse.setAvailable(subscriptionPlan.getAvailable());
