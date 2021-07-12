@@ -104,7 +104,7 @@ public class SubscriptionController {
                          )
                      );
         }
-        if(createSubscriptionRequest.getAmount() < subscriptionPlan.get().getMin_amount()) {
+        if(createSubscriptionRequest.getAmount() < subscriptionPlan.get().getMinAmount()) {
         	 return ResponseEntity
                      .badRequest()
                      .body(
@@ -115,6 +115,17 @@ public class SubscriptionController {
                          )
                      );
         } 
+        if(createSubscriptionRequest.getAmount() > subscriptionPlan.get().getMaxAmount()) {
+       	 return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "subscription/amount-not-exceed",
+                                "subscription amount not reach the maximum amount for this subscription plan"
+                        )
+                    );
+       }
         
         /** MUST GET THE AUTHENTICATED USER NOT BY THE USER ID */
      
