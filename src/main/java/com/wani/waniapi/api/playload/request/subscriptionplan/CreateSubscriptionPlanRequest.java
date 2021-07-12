@@ -9,8 +9,8 @@ public class CreateSubscriptionPlanRequest {
     private String name;
     private String description;
 
-    private Integer min_amount;
-    private Integer max_amount;
+    private Integer minAmount;
+    private Integer maxAmount;
     private Integer frequency;
     private Integer roip;
     private Boolean available;
@@ -52,21 +52,6 @@ public class CreateSubscriptionPlanRequest {
         this.available = available;
     }
 
-	public Integer getMin_amount() {
-		return min_amount;
-	}
-
-	public void setMin_amount(Integer min_amount) {
-		this.min_amount = min_amount;
-	}
-
-	public Integer getMax_amount() {
-		return max_amount;
-	}
-
-	public void setMax_amount(Integer max_amount) {
-		this.max_amount = max_amount;
-	}
 
 	public Integer getFrequency() {
 		return frequency;
@@ -90,6 +75,22 @@ public class CreateSubscriptionPlanRequest {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public Integer getMaxAmount() {
+		return maxAmount;
+	}
+
+	public void setMaxAmount(Integer maxAmount) {
+		this.maxAmount = maxAmount;
+	}
+
+	public Integer getMinAmount() {
+		return minAmount;
+	}
+
+	public void setMinAmount(Integer minAmount) {
+		this.minAmount = minAmount;
 	}
 
    
