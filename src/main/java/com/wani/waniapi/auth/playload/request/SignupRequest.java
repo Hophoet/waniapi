@@ -21,7 +21,7 @@ public class SignupRequest {
 
     private Set<String> roles;
 
-    private String reference;
+    private String RefUsername;
     private String firstName;
     private String lastName;
     private String address;
@@ -62,10 +62,6 @@ public class SignupRequest {
         this.roles = roles;
     }
 
-    public String getReference() { return reference; }
-
-    public void setReference(String reference) { this.reference = reference; }
-
     // first name
     public String getFirstName() {
         return firstName;
@@ -97,6 +93,14 @@ public class SignupRequest {
     public Boolean getIsActive() { return isActive; }
 
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
+	public String getRefUsername() {
+		return RefUsername;
+	}
+
+	public void setRefUsername(String refUsername) {
+		RefUsername = refUsername;
+	}
 
 
 }
