@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+src/main/java/com/wani/waniapi/api/Person.java
+src/main/java/com/wani/waniapi/api/PersonController.java
+src/main/java/com/wani/waniapi/api/PersonRepository.java
+src/main/java/com/wani/waniapi/api/PersonService.java
+
