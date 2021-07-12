@@ -3,6 +3,7 @@ package com.wani.waniapi.auth.controllers;
 import com.wani.waniapi.auth.models.ERole;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.User;
+import com.wani.waniapi.auth.models.UserResponse;
 import com.wani.waniapi.auth.playload.request.LoginRequest;
 import com.wani.waniapi.auth.playload.request.SignupRequest;
 import com.wani.waniapi.auth.playload.request.UpdateRequest;
@@ -10,7 +11,9 @@ import com.wani.waniapi.auth.playload.response.JwtResponse;
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 
 import com.wani.waniapi.api.models.File;
-
+import com.wani.waniapi.api.models.Subscription;
+import com.wani.waniapi.api.models.SubscriptionPlan;
+import com.wani.waniapi.api.playload.request.subscriptionplan.CreateSubscriptionPlanRequest;
 import com.wani.waniapi.api.repositories.FileRepository;
 
 import com.wani.waniapi.auth.playload.response.MessageResponse;
@@ -26,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -244,6 +248,33 @@ public class AuthController {
         );
 
 
+    }
+
+
+    @GetMapping("/auth/user/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity getUser(
+        @PathVariable String id
+    ){
+        // get the subscription plan
+        Optional<User> user =  userRepository.findById(id);
+        // check if the subscription plan exists
+        if(!user.isPresent()){
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            404,
+                            "user/not-found",
+                            "user not found"
+                    )
+                );
+        }
+        
+        User userObject = user.get();
+    
+      
+        return ResponseEntity.ok(userObject.getRequestResponse());
     }
 
 
