@@ -161,9 +161,16 @@ public class AuthController {
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
         //check the user signup reference
-        if(signUpRequest.getReference() != null){
+        if(signUpRequest.getRefUsername() != null){
             //set the user reference
-            user.setReference(signUpRequest.getReference());
+        	String refUsername = signUpRequest.getRefUsername();
+
+            // get the user
+            Optional<User> refUser =  userRepository.findByUsername(refUsername);
+            // check if the ref user exists
+            if(refUser.isPresent()){            		
+                  user.setReference(refUser.get().getId());
+            }        	
         }
 
         //check the user signup state
