@@ -1,5 +1,6 @@
 package com.wani.waniapi.api.models;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -10,14 +11,20 @@ public class Interest {
     @Id
     private String id;
     private String subscriptionId;
+    private String accountId;
 	private int amount;
-    private long createdAt;
+    private LocalDateTime createdAt;
     private boolean paid;
     
-    public Interest(String subscriptionId, int amount) {
+    public Interest(
+    		String subscriptionId, 
+    		String accountId, 
+    		int amount
+    		) {
     	this.subscriptionId = subscriptionId;
-    	this.setAmount(amount);
-         this.createdAt = System.currentTimeMillis();
+    	this.accountId = accountId;
+    	this.amount = amount;
+    	this.setCreatedAt(LocalDateTime.now());
     }
     
     public String getId() {
@@ -42,13 +49,6 @@ public class Interest {
 		this.amount = amount;
 	}
 
-	public long getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(long createdAt) {
-		this.createdAt = createdAt;
-	}
 
 	public boolean isPaid() {
 		return paid;
@@ -56,6 +56,22 @@ public class Interest {
 
 	public void setPaid(boolean paid) {
 		this.paid = paid;
+	}
+
+	public String getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 
 

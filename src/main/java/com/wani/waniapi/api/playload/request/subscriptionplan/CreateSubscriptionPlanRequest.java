@@ -1,25 +1,21 @@
 package com.wani.waniapi.api.playload.request.subscriptionplan;
 
+import java.time.LocalDateTime;
+
 import javax.validation.constraints.NotBlank;
 
 public class CreateSubscriptionPlanRequest {
     @NotBlank
     private String name;
-
-    @NotBlank
     private String description;
 
-    // @NotBlank
-    private  Integer amount;
-
-    // @NotBlank
-    private  Integer duration;
-
-    private  Integer interest;
-
-    private  Boolean available;
-
-    private  Integer createdAt;
+    private Integer min_amount;
+    private Integer max_amount;
+    private Integer frequency;
+    private Integer roip;
+    private Boolean available;
+    private Integer duration;
+    private LocalDateTime createdAt;
 
     public String getName() {
         return name;
@@ -45,21 +41,9 @@ public class CreateSubscriptionPlanRequest {
         this.description = description;
     }
 
-    public Integer getAmount() {
-        return amount;
-    }
+ 
+  
 
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public Integer getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Integer createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public Boolean getAvailable() {
         return available;
@@ -68,11 +52,46 @@ public class CreateSubscriptionPlanRequest {
         this.available = available;
     }
 
-    public Integer getInterest() {
-        return interest;
-    }
-    public void setInterest(Integer interest) {
-        this.interest = interest;
-    }
+	public Integer getMin_amount() {
+		return min_amount;
+	}
+
+	public void setMin_amount(Integer min_amount) {
+		this.min_amount = min_amount;
+	}
+
+	public Integer getMax_amount() {
+		return max_amount;
+	}
+
+	public void setMax_amount(Integer max_amount) {
+		this.max_amount = max_amount;
+	}
+
+	public Integer getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(Integer frequency) {
+		this.frequency = frequency;
+	}
+
+	public Integer getRoip() {
+		return roip;
+	}
+
+	public void setRoip(Integer roip) {
+		this.roip = roip;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+   
 
 }

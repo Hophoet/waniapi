@@ -1,5 +1,6 @@
 package com.wani.waniapi.api.models;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +19,13 @@ public class SubscriptionPlan {
     private String id;
     private String name;
     private String description;
-    private Integer amount;
-    private Integer interest;
+    private Integer min_amount;
+    private Integer max_amount;
+    private Integer frequency;
+    private Integer roip;
     private Boolean available;
     private Integer duration;
-    private Integer createdAt;
-    private Integer subscriptionsCount;
+    private LocalDateTime createdAt;
 
     public SubscriptionPlan(){
 
@@ -32,35 +34,42 @@ public class SubscriptionPlan {
     public SubscriptionPlan(
         String name, 
         String description, 
-        Integer amount,
-        Integer interest,
+        Integer min_amount,
+        Integer max_amount,
+        Integer frequency,
+        Integer roip,
         Integer duration
     ) {
         this.name = name;
         this.description = description;
-        this.amount = amount;
-        this.interest = interest;
+        this.max_amount = max_amount;
+        this.min_amount = min_amount;
+        this.roip = roip;
         this.duration = duration;
-        this.createdAt = 20390;
+        this.frequency = frequency;
+
+    	this.createdAt = LocalDateTime.now();
         this.available = true;
-        this.subscriptionsCount = 0;
     }
     public SubscriptionPlan(
         String name, 
         String description, 
-        Integer amount,
-        Integer interest,
+        Integer min_amount,
+        Integer max_amount,     
+        Integer frequency,
+        Integer roip,
         Integer duration,
         Boolean available
     ) {
         this.name = name;
         this.description = description;
-        this.amount = amount;
-        this.interest = interest;
+        this.max_amount = max_amount;
+        this.min_amount = min_amount;
+        this.roip = roip;
         this.duration = duration;
-        this.createdAt = 20390;
+        this.frequency = frequency;
+    	this.createdAt = LocalDateTime.now();
         this.available = available;
-        this.subscriptionsCount = 0;
 
     }
 
@@ -98,22 +107,7 @@ public class SubscriptionPlan {
         this.description = description;
     }
 
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public Integer getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Integer createdAt) {
-        this.createdAt = createdAt;
-    }
-
+ 
     public Boolean getAvailable() {
         return available;
     }
@@ -121,19 +115,45 @@ public class SubscriptionPlan {
         this.available = available;
     }
 
-    public Integer getInterest() {
-        return interest;
-    }
-    public void setInterest(Integer interest) {
-        this.interest = interest;
-    }
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
 
-    public Integer getSubscriptionsCount() {
-        return subscriptionsCount;
-    }
-    public void setSubscriptionsCount(Integer sC) {
-        this.subscriptionsCount = sC;
-    }
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Integer getMin_amount() {
+		return min_amount;
+	}
+
+	public void setMin_amount(Integer min_amount) {
+		this.min_amount = min_amount;
+	}
+
+	public Integer getMax_amount() {
+		return max_amount;
+	}
+
+	public void setMax_amount(Integer max_amount) {
+		this.max_amount = max_amount;
+	}
+
+	public Integer getRoip() {
+		return roip;
+	}
+
+	public void setRoip(Integer roip) {
+		this.roip = roip;
+	}
+
+	public Integer getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(Integer frequency) {
+		this.frequency = frequency;
+	}
     
   
    

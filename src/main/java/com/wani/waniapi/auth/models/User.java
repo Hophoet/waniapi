@@ -45,6 +45,8 @@ public class User {
     private String image;
 
     private Boolean isActive;
+    
+    private LocalDateTime createdAt;
 
     private String token;
 	private LocalDateTime tokenCreationDate;
@@ -57,6 +59,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.isActive = true;
+        this.setCreatedAt(LocalDateTime.now());
     }
 
     public User(String username, String email, String password, Boolean isActive) {
@@ -64,6 +67,8 @@ public class User {
         this.email = email;
         this.password = password;
         this.isActive = isActive;
+        this.setCreatedAt(LocalDateTime.now());
+
     }
 
     public  User(String username, String email, String password, String reference){
@@ -72,6 +77,8 @@ public class User {
         this.password = password;
         this.reference = reference;
         this.isActive = true;
+        this.setCreatedAt(LocalDateTime.now());
+
     }
     public  User(
         String username, 
@@ -90,6 +97,8 @@ public class User {
         this.lastName = lastName;
         this.address = address;
         this.isActive = true;
+        this.setCreatedAt(LocalDateTime.now());
+
     }
 
     public String getId() {
@@ -162,4 +171,12 @@ public class User {
     public LocalDateTime getTokenCreationDate() { return tokenCreationDate; }
 
     public void setTokenCreationDate(LocalDateTime tcd) { this.tokenCreationDate = tcd; }
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
 }

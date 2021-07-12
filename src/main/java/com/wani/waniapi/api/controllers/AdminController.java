@@ -6,6 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.models.Role;
 import com.wani.waniapi.auth.models.ERole;
+import com.wani.waniapi.api.models.Account;
 import com.wani.waniapi.api.models.File;
 import com.wani.waniapi.api.models.Payment;
 import com.wani.waniapi.api.models.PaymentMethod;
@@ -17,6 +18,7 @@ import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
 import com.wani.waniapi.api.serializers.SubscriptionSerializer;
+import com.wani.waniapi.api.repositories.AccountRepository;
 import com.wani.waniapi.api.repositories.FileRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
 import com.wani.waniapi.api.repositories.PaymentRepository;
@@ -60,7 +62,6 @@ public class AdminController {
     @Autowired
     FileRepository fileRepository;
     
-
     @Autowired
     UserRepository userRepository;
     
@@ -80,6 +81,10 @@ public class AdminController {
     
     @Autowired
     SubscriptionRepository subscriptionRepository;
+    
+    @Autowired
+    AccountRepository accountRepository;
+    
     
     @Autowired
     PasswordEncoder encoder;
@@ -453,8 +458,10 @@ public class AdminController {
         SubscriptionPlan subscriptionPlan = new SubscriptionPlan(
             createSubscriptionPlanRequest.getName(),
             createSubscriptionPlanRequest.getDescription(),
-            createSubscriptionPlanRequest.getAmount(),
-            createSubscriptionPlanRequest.getInterest(),
+            createSubscriptionPlanRequest.getMin_amount(),
+            createSubscriptionPlanRequest.getMax_amount(),
+            createSubscriptionPlanRequest.getFrequency(),
+            createSubscriptionPlanRequest.getRoip(),
             createSubscriptionPlanRequest.getDuration(),
             createSubscriptionPlanRequest.getAvailable()
         );
@@ -505,8 +512,11 @@ public class AdminController {
         // update the subcription plan
         subscriptionPlanValues.setName(createSubscriptionPlanRequest.getName());
         subscriptionPlanValues.setDescription(createSubscriptionPlanRequest.getDescription());
-        subscriptionPlanValues.setAmount(createSubscriptionPlanRequest.getAmount());
-        subscriptionPlanValues.setInterest(createSubscriptionPlanRequest.getInterest());
+        subscriptionPlanValues.setMin_amount(createSubscriptionPlanRequest.getMin_amount());
+        subscriptionPlanValues.setMax_amount(createSubscriptionPlanRequest.getMax_amount());
+        subscriptionPlanValues.setRoip(createSubscriptionPlanRequest.getRoip());
+        subscriptionPlanValues.setDuration(createSubscriptionPlanRequest.getDuration());
+        subscriptionPlanValues.setFrequency(createSubscriptionPlanRequest.getFrequency());
         subscriptionPlanValues.setDuration(createSubscriptionPlanRequest.getDuration()); // update the subscription plan
         subscriptionPlanValues.setAvailable(createSubscriptionPlanRequest.getAvailable());
         return ResponseEntity.ok(subscriptionPlanRepository.save(subscriptionPlanValues));
@@ -552,24 +562,21 @@ public class AdminController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
+    
     public SubscriptionPlanResponse _getSubscriptionPlanResponse(SubscriptionPlan subscriptionPlan) {
     	SubscriptionPlanResponse subscriptionPlanResponse = new SubscriptionPlanResponse();
-    	subscriptionPlanResponse.setId(
-    			subscriptionPlan.getId());
-    	subscriptionPlanResponse.setName(
-    			subscriptionPlan.getName());
-    	subscriptionPlanResponse.setDescription(
-    			subscriptionPlan.getDescription());
-    	subscriptionPlanResponse.setAmount(
-    			subscriptionPlan.getAmount());
-    	subscriptionPlanResponse.setInterest(
-    			subscriptionPlan.getInterest());
-    	subscriptionPlanResponse.setAvailable(
-    			subscriptionPlan.getAvailable());
-    	subscriptionPlanResponse.setDuration(
-    			subscriptionPlan.getDuration());
-    	subscriptionPlanResponse.setCreatedAt(
-    			subscriptionPlan.getCreatedAt());
+    	subscriptionPlanResponse.setId(subscriptionPlan.getId());
+    	subscriptionPlanResponse.setName(subscriptionPlan.getName());
+    	subscriptionPlanResponse.setDescription(subscriptionPlan.getDescription());
+    	subscriptionPlanResponse.setMin_amount(subscriptionPlan.getMin_amount());
+    	subscriptionPlanResponse.setMax_amount(subscriptionPlan.getMax_amount());
+    	subscriptionPlanResponse.setFrequency(subscriptionPlan.getFrequency());
+    	subscriptionPlanResponse.setRoip(subscriptionPlan.getRoip());
+    	subscriptionPlanResponse.setAvailable(subscriptionPlan.getAvailable());
+    	subscriptionPlanResponse.setDuration(subscriptionPlan.getDuration());
+    	subscriptionPlanResponse.setCreatedAt(subscriptionPlan.getCreatedAt());
+    	
+    	
     	List<Subscription> spSubscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlan.getId());
     	
     	subscriptionPlanResponse.setSubscriptionsCount(
@@ -627,16 +634,19 @@ public class AdminController {
         
         	SubscriptionResponse subscriptionResponse = SubscriptionSerializer.serializer(subscription);
         	subscriptionResponse.setId(subscription.getId());
-        	subscriptionResponse.setPhoneNumber(subscription.getPhoneNumber());
         	subscriptionResponse.setCreatedAt(subscription.getCreatedAt());
         	subscriptionResponse.setEndedAt(subscription.getEndedAt());
         	subscriptionResponse.setPaid(subscription.getPaid());
         	subscriptionResponse.setAmount(subscription.getAmount());
         	subscriptionResponse.setTimeRemaining(subscription.getTimeRemaining());
-        	subscriptionResponse.setLastPaymentAt(subscription.getLastPaymentAt());
-        	Optional<User> user = userRepository.findById(subscription.getUserId());
-    		if(user.isPresent()) {
-    			subscriptionResponse.setUser(user.get());
+        	subscriptionResponse.setEndedAt(subscription.getEndedAt());
+        	subscriptionResponse.setLastInterestPaymentAt(subscription.getLastInterestPaymentAt());
+        	subscriptionResponse.setNextInterestPaymentAt(subscription.getNextInterestPaymentAt());
+        	
+        	Optional<Account> account = accountRepository.findById(subscription.getAccountId());
+
+    		if(account.isPresent()) {
+    			subscriptionResponse.setAccount(account.get());
     		}
     		Optional<SubscriptionPlan> subscriptionPlan = subscriptionPlanRepository.findById(subscription.getSubscriptionPlanId());
     		if(subscriptionPlan.isPresent()) {
@@ -666,21 +676,23 @@ public class AdminController {
         return subscriptionResponses;
     }
     
-    @GetMapping("/subscription-plan/{subscriptionPlanId}/users")
+    @GetMapping("/subscription-plan/{subscriptionPlanId}/accounts")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getSubscriptionPlanUsers(@PathVariable String subscriptionPlanId){
+    public List<Account> getSubscriptionPlanAccounts(@PathVariable String subscriptionPlanId){
         List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanId);
-        List<User> users = new ArrayList<>();
+        List<Account> accounts = new ArrayList<>();
         for(Subscription subscription : subscriptions) {
-        	String userId = subscription.getUserId();
-        	// get the user
-            Optional<User> user =  userRepository.findById(userId);
-            // check if the user exists
-            if(user.isPresent()){
-            	users.add(user.get());
+        	String accountId = subscription.getAccountId();
+        
+            // get account
+            Optional<Account> account =  accountRepository.findById(accountId);
+
+            // check if the user account exists
+            if(account.isPresent()){
+            	accounts.add(account.get());
             }
         }
-        return users;
+        return accounts;
     }
 
   

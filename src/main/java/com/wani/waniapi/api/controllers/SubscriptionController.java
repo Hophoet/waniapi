@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import com.wani.waniapi.api.models.SubscriptionPlan;
 import com.wani.waniapi.api.models.Subscription;
 import com.wani.waniapi.api.models.PaymentMethod;
+import com.wani.waniapi.api.models.Account;
 import com.wani.waniapi.api.models.Payment;
 import com.wani.waniapi.auth.models.User;
 
@@ -24,6 +25,7 @@ import com.wani.waniapi.api.playload.response.subscription.SubscriptionResponse;
 
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
+import com.wani.waniapi.api.repositories.AccountRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
 import com.wani.waniapi.api.repositories.PaymentRepository;
 import com.wani.waniapi.auth.repository.UserRepository;
@@ -52,6 +54,9 @@ public class SubscriptionController {
 
     @Autowired
     PaymentRepository paymentRepository;
+    
+    @Autowired
+    AccountRepository accountRepository;
 
     @PostMapping("/subscription/create")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -99,7 +104,7 @@ public class SubscriptionController {
                          )
                      );
         }
-        if(createSubscriptionRequest.getAmount() < subscriptionPlan.get().getAmount()) {
+        if(createSubscriptionRequest.getAmount() < subscriptionPlan.get().getMin_amount()) {
         	 return ResponseEntity
                      .badRequest()
                      .body(
@@ -109,80 +114,49 @@ public class SubscriptionController {
                                  "subscription amount not reach the minimum amount"
                          )
                      );
-        }
-        // get the payment method
-        Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(
-            createSubscriptionRequest.getPaymentMethodId()
-        );
-        // check if the payment method plan exists
-        if(!paymentMethod.isPresent()){
-            return ResponseEntity
-                .badRequest()
-                .body(
-                    new ErrorResponse(
-                            404,
-                            "payment-method/not-found",
-                            "invalid payment method id"
-                    )
-                );
-        }
-        PaymentMethod paymentMethodObject = paymentMethod.get();
-        if(!paymentMethodObject.isActive()) {
-	       	 return ResponseEntity
-	                 .badRequest()
-	                 .body(
-	                     new ErrorResponse(
-	                             400,
-	                             "payment-method/not-available",
-	                             "payment method is not available"
-	                     )
-	                 );
-        	
-        }
+        } 
+        
         /** MUST GET THE AUTHENTICATED USER NOT BY THE USER ID */
-        // get the user id
-        Optional<User> user =  userRepository.findById(
-            createSubscriptionRequest.getUserId()
-        );
-        // check if the user exists
-        if(!user.isPresent()){
+     
+        
+        // get the user account id
+        Optional<Account> account = accountRepository.findById(createSubscriptionRequest.getAccountId());
+        // check if the user accoun texists
+        if(!account.isPresent()){
             return ResponseEntity
                 .badRequest()
                 .body(
                     new ErrorResponse(
                             404,
-                            "user/not-found",
-                            "invalid user id"
+                            "user-account/not-found",
+                            "user account not found"
                     )
                 );
         }
-        User userObject = user.get();
-      
+        Account accountObject = account.get();
+        
+        
         // create payment
         Payment payment = new Payment(
-            userObject.getId(),
-            paymentMethodObject.getId()
-        );
+        		accountObject.getId(), 
+        		createSubscriptionRequest.getAmount()
+        		);
+      
+      
         Payment paymentObject = paymentRepository.save(payment);
         
         //create subscription
         Subscription subscription = new Subscription(
-            userObject.getId(),
+            accountObject.getId(),
+            createSubscriptionRequest.getAmount(),
             createSubscriptionRequest.getSubscriptionPlanId(),
-            paymentObject.getId(),
-            createSubscriptionRequest.getPhoneNumber()
+            paymentObject.getId()
         );
         // set the subscription endedAt value
-        subscription.setEndedAt(
-            subscriptionPlanValues.getDuration() + subscription.getCreatedAt()
-        );    
-        subscription.setAmount(
-        		subscriptionPlanValues.getAmount()
-        );
+  
         // set the remaining duration
-        subscription.setTimeRemaining(
-        		subscriptionPlanValues.getDuration()
-        );
+     
+        
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
         // response
         return ResponseEntity.ok(
@@ -192,122 +166,119 @@ public class SubscriptionController {
 
 
 
-    @GetMapping("/user-subscriptions")
+    @GetMapping("/account-subscriptions")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public List<Subscription> getUserSubscriptions(
-       @Valid @RequestPart(required = true) String userId
+    public List<Subscription> getAccountSubscriptions(
+       @Valid @RequestPart(required = true) String accountId
     ){
         
         /** MUST GET THE AUTHENTICATED USER NOT BY THE USER ID */
-        // get the user id
-        Optional<User> user =  userRepository.findById(
-            userId
-        );
-        // get the use object
-        User userObject = user.get();
+        // get the account
+        Optional<Account> account =  accountRepository.findById(accountId);
+        
+        // get the account object
+        Account accountObject = account.get();
 
         /**
          * TODO
          * subscription must be get by the userId on the subscriptionRepository
          */
-        List<Subscription> subscriptions = subscriptionRepository.findByUserId(
-            userId
-        );
+        List<Subscription> subscriptions = subscriptionRepository.findByAccountId(accountId);
         return subscriptions;
     }
 
    
-    @PutMapping("/subscription/pay")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<?>  paySubscription(
-       @AuthenticationPrincipal UserDetailsImpl userDetail,
-       @Valid @RequestPart(required = true) String subscriptionId,
-       @Valid @RequestPart(required = true) String paymentMethodId,
-       @Valid @RequestPart(required = true) String phoneNumber
-    ){
-    	 
-        Optional<Subscription> subscription =  subscriptionRepository.findById(
-            subscriptionId
-        );
-    	// check if the subscription exists
-        if(!subscription.isPresent()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(
-                        new ErrorResponse(
-                                404,
-                                "subscription/not-found",
-                                "subscription not found"
-                        )
-                    );
-        }
-        Subscription subscriptionObject = subscription.get();
-        String subscriptionPlanId = subscriptionObject.getSubscriptionPlanId();
-        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
-                subscriptionPlanId
-        );
-    	// check if the subscription subscription plan exists
-    	if(!subscriptionPlan.isPresent()) {
-    		 return ResponseEntity
-                     .badRequest()
-                     .body(
-                         new ErrorResponse(
-                                 404,
-                                 "subscription-plan/not-found",
-                                 "subscription plan not found"
-                         )
-                     );
-    	}
-    	Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(
-                paymentMethodId
-          );
-    	// check if the payment method exist
-    	if(!paymentMethod.isPresent()) {
-    		return ResponseEntity
-                    .badRequest()
-                    .body(
-                        new ErrorResponse(
-                                404,
-                                "payment-method/not-found",
-                                "payment method not found"
-                        )
-                    );
-    	}
-    	
-    	String userId = subscriptionObject.getUserId();
-    	// check if is the authorized user(who make the subscription before)
-    	if(!userId.equals(userDetail.getId())) {
-    		 return ResponseEntity
-                     .badRequest()
-                     .body(
-                         new ErrorResponse(
-                                 401,
-                                 "paid/not-authoried",
-                                 "the subscription is not for the authenticated user"
-                         )
-                     );
-    	}
-    	// check if the subscription is not paid
-    	if(subscriptionObject.getPaid()) {
-    		 return ResponseEntity
-                     .badRequest()
-                     .body(
-                         new ErrorResponse(
-                                 401,
-                                 "subscription/was-paid",
-                                 "subscription already paid"
-                         )
-                     );
-    	}
-    	// Make the payment request, 
-    
-    	
-    	
-    	// Update the subscription payment phone number
-    	subscriptionObject.setPhoneNumber(phoneNumber);
-    	subscriptionObject.setPaymentId(paymentMethodId);
-    	
-       return ResponseEntity.ok(subscriptionObject);
-    }
+//    @PutMapping("/subscription/pay")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+//    public ResponseEntity<?>  paySubscription(
+//       @AuthenticationPrincipal UserDetailsImpl userDetail,
+//       @Valid @RequestPart(required = true) String subscriptionId,
+//       @Valid @RequestPart(required = true) String paymentMethodId,
+//       @Valid @RequestPart(required = true) String phoneNumber
+//    ){
+//    	 
+//        Optional<Subscription> subscription =  subscriptionRepository.findById(
+//            subscriptionId
+//        );
+//    	// check if the subscription exists
+//        if(!subscription.isPresent()) {
+//            return ResponseEntity
+//                    .badRequest()
+//                    .body(
+//                        new ErrorResponse(
+//                                404,
+//                                "subscription/not-found",
+//                                "subscription not found"
+//                        )
+//                    );
+//        }
+//        Subscription subscriptionObject = subscription.get();
+//        String subscriptionPlanId = subscriptionObject.getSubscriptionPlanId();
+//        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
+//                subscriptionPlanId
+//        );
+//    	// check if the subscription subscription plan exists
+//    	if(!subscriptionPlan.isPresent()) {
+//    		 return ResponseEntity
+//                     .badRequest()
+//                     .body(
+//                         new ErrorResponse(
+//                                 404,
+//                                 "subscription-plan/not-found",
+//                                 "subscription plan not found"
+//                         )
+//                     );
+//    	}
+//    	Optional<PaymentMethod> paymentMethod =  paymentMethodRepository.findById(
+//                paymentMethodId
+//          );
+//    	// check if the payment method exist
+//    	if(!paymentMethod.isPresent()) {
+//    		return ResponseEntity
+//                    .badRequest()
+//                    .body(
+//                        new ErrorResponse(
+//                                404,
+//                                "payment-method/not-found",
+//                                "payment method not found"
+//                        )
+//                    );
+//    	}
+//    	
+//    	String userId = subscriptionObject.getUserId();
+//    	// check if is the authorized user(who make the subscription before)
+//    	if(!userId.equals(userDetail.getId())) {
+//    		 return ResponseEntity
+//                     .badRequest()
+//                     .body(
+//                         new ErrorResponse(
+//                                 401,
+//                                 "paid/not-authoried",
+//                                 "the subscription is not for the authenticated user"
+//                         )
+//                     );
+//    	}
+//    	// check if the subscription is not paid
+//    	if(subscriptionObject.getPaid()) {
+//    		 return ResponseEntity
+//                     .badRequest()
+//                     .body(
+//                         new ErrorResponse(
+//                                 401,
+//                                 "subscription/was-paid",
+//                                 "subscription already paid"
+//                         )
+//                     );
+//    	}
+//    	// Make the payment request, 
+//    
+//    	
+//    	
+//    	// Update the subscription payment phone number
+//    	subscriptionObject.setPhoneNumber(phoneNumber);
+//    	subscriptionObject.setPaymentId(paymentMethodId);
+//    	
+//       return ResponseEntity.ok(subscriptionObject);
+//    }
 
 }
