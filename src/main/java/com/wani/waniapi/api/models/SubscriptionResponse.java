@@ -8,8 +8,8 @@ import org.springframework.data.annotation.Id;
 public class SubscriptionResponse {
 	@Id
 	private String id;
-	private Account account;
-	private SubscriptionPlan subscriptionPlan;
+	private AccountResponse account;
+	private SubscriptionPlanResponse subscriptionPlan;
 	private PaymentResponse payment;
 	private int amount;
     private LocalDateTime createdAt;
@@ -23,9 +23,6 @@ public class SubscriptionResponse {
 		return id;
 	}
 
-	public SubscriptionPlan getSubscriptionPlan() {
-		return subscriptionPlan;
-	}
 
 	public boolean isPaid() {
 		return paid;
@@ -34,9 +31,7 @@ public class SubscriptionResponse {
 		this.id = id;
 	}
 
-	public void setSubscriptionPlan(SubscriptionPlan subscriptionPlan) {
-		this.subscriptionPlan = subscriptionPlan;
-	}
+
 
 	
 	public void setPaid(boolean paid) {
@@ -61,12 +56,7 @@ public class SubscriptionResponse {
 	public void setTimeRemaining(int timeRemaining) {
 		this.timeRemaining = timeRemaining;
 	}
-	public Account getAccount() {
-		return account;
-	}
-	public void setAccount(Account account) {
-		this.account = account;
-	}
+
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
@@ -90,6 +80,24 @@ public class SubscriptionResponse {
 	}
 	public void setNextInterestPaymentAt(long nextInterestPaymentAt) {
 		this.nextInterestPaymentAt = nextInterestPaymentAt;
+	}
+
+	public AccountResponse getAccount() {
+		return account;
+	}
+
+	public void setAccount(AccountResponse account) {
+		this.account = account;
+	}
+
+
+	public SubscriptionPlanResponse getSubscriptionPlan() {
+		return subscriptionPlan;
+	}
+
+
+	public void setSubscriptionPlan(SubscriptionPlanResponse subscriptionPlan) {
+		this.subscriptionPlan = subscriptionPlan;
 	}
 
 
