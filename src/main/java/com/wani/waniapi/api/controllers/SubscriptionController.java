@@ -1,5 +1,6 @@
 package com.wani.waniapi.api.controllers;
 
+import com.wani.waniapi.api.models.SubscriptionResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,10 @@ import com.wani.waniapi.auth.models.User;
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.api.playload.request.subscription.CreateSubscriptionRequest;
 
-import com.wani.waniapi.api.playload.response.subscription.SubscriptionResponse;
 
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
+import com.wani.waniapi.api.services.SubscriptionService;
 import com.wani.waniapi.api.repositories.AccountRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
 import com.wani.waniapi.api.repositories.PaymentRepository;
@@ -42,6 +43,9 @@ import javax.validation.Valid;
 public class SubscriptionController {
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    SubscriptionService subscriptionService;
 
     @Autowired
     SubscriptionPlanRepository subscriptionPlanRepository;
@@ -196,6 +200,31 @@ public class SubscriptionController {
          */
         List<Subscription> subscriptions = subscriptionRepository.findByAccountId(accountId);
         return subscriptions;
+    }
+    
+    @GetMapping("/subscription/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity getSubscription(
+        @PathVariable String id
+    ){
+        // get the subscription
+        Optional<Subscription> subscription =  subscriptionRepository.findById(id);
+        // check if the subcription exists
+        if(!subscription.isPresent()){
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            404,
+                            "subscription/not-found",
+                            "subscription not found"
+                    )
+                );
+        }
+        
+        SubscriptionResponse subscriptionResponse = subscriptionService.getRequestResponse(id);
+    
+        return ResponseEntity.ok(subscriptionResponse);
     }
 
    
