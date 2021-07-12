@@ -179,4 +179,26 @@ public class User {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+	
+	public UserResponse getRequestResponse() {
+		UserResponse userResponse = new UserResponse();
+		userResponse.setId(this.id);
+		userResponse.setEmail(this.email);
+		userResponse.setUsername(this.username);
+		return userResponse;
+				
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
