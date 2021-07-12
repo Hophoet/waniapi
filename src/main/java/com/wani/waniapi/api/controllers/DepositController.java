@@ -46,7 +46,7 @@ public class DepositController {
  	       @AuthenticationPrincipal UserDetailsImpl userDetail
     ){
     	
-    	if(createDeposit.getAmount() != null) {
+    	if(createDeposit.getAmount() == null) {
     		return ResponseEntity
                     .badRequest()
                     .body(
@@ -58,7 +58,7 @@ public class DepositController {
                     );
     	}
    
-    	if(createDeposit.getPaymentMethodId() != null) {
+    	if(createDeposit.getPaymentMethodId() == null) {
     		return ResponseEntity
                     .badRequest()
                     .body(
