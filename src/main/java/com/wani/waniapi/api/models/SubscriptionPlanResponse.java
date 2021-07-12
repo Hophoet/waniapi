@@ -9,8 +9,8 @@ public class SubscriptionPlanResponse {
     private String id;
     private String name;
     private String description;
-    private Integer min_amount;
-    private Integer max_amount;
+    private Integer minAmount;
+    private Integer maxAmount;
     private Integer frequency;
     private Integer roip;
     private Boolean available;
@@ -49,18 +49,6 @@ public class SubscriptionPlanResponse {
 	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
-	public Integer getMin_amount() {
-		return min_amount;
-	}
-	public void setMin_amount(Integer min_amount) {
-		this.min_amount = min_amount;
-	}
-	public Integer getMax_amount() {
-		return max_amount;
-	}
-	public void setMax_amount(Integer max_amount) {
-		this.max_amount = max_amount;
-	}
 	public Integer getFrequency() {
 		return frequency;
 	}
@@ -84,6 +72,18 @@ public class SubscriptionPlanResponse {
 	}
 	public void setSubscriptionsCount(Integer subscriptionsCount) {
 		this.subscriptionsCount = subscriptionsCount;
+	}
+	public Integer getMaxAmount() {
+		return maxAmount;
+	}
+	public void setMaxAmount(Integer maxAmount) {
+		this.maxAmount = maxAmount;
+	}
+	public Integer getMinAmount() {
+		return minAmount;
+	}
+	public void setMinAmount(Integer minAmount) {
+		this.minAmount = minAmount;
 	}
 
 }

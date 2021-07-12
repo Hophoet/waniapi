@@ -19,8 +19,8 @@ public class SubscriptionPlan {
     private String id;
     private String name;
     private String description;
-    private Integer min_amount;
-    private Integer max_amount;
+    private Integer minAmount;
+    private Integer maxAmount;
     private Integer frequency;
     private Integer roip;
     private Boolean available;
@@ -34,16 +34,16 @@ public class SubscriptionPlan {
     public SubscriptionPlan(
         String name, 
         String description, 
-        Integer min_amount,
-        Integer max_amount,
+        Integer minAmount,
+        Integer maxAmount,
         Integer frequency,
         Integer roip,
         Integer duration
     ) {
         this.name = name;
         this.description = description;
-        this.max_amount = max_amount;
-        this.min_amount = min_amount;
+        this.maxAmount = maxAmount;
+        this.minAmount = minAmount;
         this.roip = roip;
         this.duration = duration;
         this.frequency = frequency;
@@ -54,8 +54,8 @@ public class SubscriptionPlan {
     public SubscriptionPlan(
         String name, 
         String description, 
-        Integer min_amount,
-        Integer max_amount,     
+        Integer minAmount,
+        Integer maxAmount,     
         Integer frequency,
         Integer roip,
         Integer duration,
@@ -63,8 +63,8 @@ public class SubscriptionPlan {
     ) {
         this.name = name;
         this.description = description;
-        this.max_amount = max_amount;
-        this.min_amount = min_amount;
+        this.maxAmount = maxAmount;
+        this.minAmount = minAmount;
         this.roip = roip;
         this.duration = duration;
         this.frequency = frequency;
@@ -123,21 +123,7 @@ public class SubscriptionPlan {
 		this.createdAt = createdAt;
 	}
 
-	public Integer getMin_amount() {
-		return min_amount;
-	}
-
-	public void setMin_amount(Integer min_amount) {
-		this.min_amount = min_amount;
-	}
-
-	public Integer getMax_amount() {
-		return max_amount;
-	}
-
-	public void setMax_amount(Integer max_amount) {
-		this.max_amount = max_amount;
-	}
+	
 
 	public Integer getRoip() {
 		return roip;
@@ -153,6 +139,36 @@ public class SubscriptionPlan {
 
 	public void setFrequency(Integer frequency) {
 		this.frequency = frequency;
+	}
+
+	public Integer getMinAmount() {
+		return minAmount;
+	}
+
+	public void setMinAmount(Integer minAmount) {
+		this.minAmount = minAmount;
+	}
+
+	public Integer getMaxAmount() {
+		return maxAmount;
+	}
+
+	public void setMaxAmount(Integer maxAmount) {
+		this.maxAmount = maxAmount;
+	}
+	
+	public SubscriptionPlanResponse getRequestResponse() {
+		SubscriptionPlanResponse subscriptionPlanResponse = new SubscriptionPlanResponse();
+		subscriptionPlanResponse.setId(this.id);
+		subscriptionPlanResponse.setAvailable(this.available);
+		subscriptionPlanResponse.setCreatedAt(this.createdAt);
+		subscriptionPlanResponse.setDescription(this.description);
+		subscriptionPlanResponse.setDuration(this.duration);
+		subscriptionPlanResponse.setFrequency(this.frequency);
+		subscriptionPlanResponse.setMaxAmount(this.maxAmount);
+		subscriptionPlanResponse.setMinAmount(this.minAmount);
+		subscriptionPlanResponse.setRoip(this.roip);
+		return subscriptionPlanResponse;
 	}
     
   

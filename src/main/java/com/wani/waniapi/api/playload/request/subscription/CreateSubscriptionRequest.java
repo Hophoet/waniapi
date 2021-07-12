@@ -9,9 +9,6 @@ public class CreateSubscriptionRequest {
     @NotBlank
     private String subscriptionPlanId;
 
-    @NotBlank
-    private String paymentId;
-    
 
     private Integer amount;
     
@@ -56,13 +53,6 @@ public class CreateSubscriptionRequest {
 		this.accountId = accountId;
 	}
 
-	public String getPaymentId() {
-		return paymentId;
-	}
-
-	public void setPaymentId(String paymentId) {
-		this.paymentId = paymentId;
-	}
     
 
 
