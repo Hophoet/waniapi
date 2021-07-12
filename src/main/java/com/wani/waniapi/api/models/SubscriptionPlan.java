@@ -156,6 +156,20 @@ public class SubscriptionPlan {
 	public void setMaxAmount(Integer maxAmount) {
 		this.maxAmount = maxAmount;
 	}
+	
+	public SubscriptionPlanResponse getRequestResponse() {
+		SubscriptionPlanResponse subscriptionPlanResponse = new SubscriptionPlanResponse();
+		subscriptionPlanResponse.setId(this.id);
+		subscriptionPlanResponse.setAvailable(this.available);
+		subscriptionPlanResponse.setCreatedAt(this.createdAt);
+		subscriptionPlanResponse.setDescription(this.description);
+		subscriptionPlanResponse.setDuration(this.duration);
+		subscriptionPlanResponse.setFrequency(this.frequency);
+		subscriptionPlanResponse.setMaxAmount(this.maxAmount);
+		subscriptionPlanResponse.setMinAmount(this.minAmount);
+		subscriptionPlanResponse.setRoip(this.roip);
+		return subscriptionPlanResponse;
+	}
     
   
    
