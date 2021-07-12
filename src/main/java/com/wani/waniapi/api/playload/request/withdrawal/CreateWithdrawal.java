@@ -6,11 +6,10 @@ public class CreateWithdrawal {
 
 	    @NotBlank
 	    private String paymentMethodId;
-	    
-	    @NotBlank
-	    private String phoneNumber;
-
+	
 	    private Integer amount;
+	    
+	    private String accountId;
 
 		public String getPaymentMethodId() {
 			return paymentMethodId;
@@ -20,14 +19,6 @@ public class CreateWithdrawal {
 			this.paymentMethodId = paymentMethodId;
 		}
 
-		public String getPhoneNumber() {
-			return phoneNumber;
-		}
-
-		public void setPhoneNumber(String phoneNumber) {
-			this.phoneNumber = phoneNumber;
-		}
-
 		public Integer getAmount() {
 			return amount;
 		}
@@ -35,6 +26,15 @@ public class CreateWithdrawal {
 		public void setAmount(Integer amount) {
 			this.amount = amount;
 		}
+
+		public String getAccountId() {
+			return accountId;
+		}
+
+		public void setAccountId(String accountId) {
+			this.accountId = accountId;
+		}
+
 
 
 

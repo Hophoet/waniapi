@@ -1,5 +1,6 @@
 package com.wani.waniapi.api.models;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +19,13 @@ public class SubscriptionPlan {
     private String id;
     private String name;
     private String description;
-    private Integer amount;
-    private Integer interest;
+    private Integer minAmount;
+    private Integer maxAmount;
+    private Integer frequency;
+    private Integer roip;
     private Boolean available;
     private Integer duration;
-    private Integer createdAt;
-    private Integer subscriptionsCount;
+    private LocalDateTime createdAt;
 
     public SubscriptionPlan(){
 
@@ -32,35 +34,42 @@ public class SubscriptionPlan {
     public SubscriptionPlan(
         String name, 
         String description, 
-        Integer amount,
-        Integer interest,
+        Integer minAmount,
+        Integer maxAmount,
+        Integer frequency,
+        Integer roip,
         Integer duration
     ) {
         this.name = name;
         this.description = description;
-        this.amount = amount;
-        this.interest = interest;
+        this.maxAmount = maxAmount;
+        this.minAmount = minAmount;
+        this.roip = roip;
         this.duration = duration;
-        this.createdAt = 20390;
+        this.frequency = frequency;
+
+    	this.createdAt = LocalDateTime.now();
         this.available = true;
-        this.subscriptionsCount = 0;
     }
     public SubscriptionPlan(
         String name, 
         String description, 
-        Integer amount,
-        Integer interest,
+        Integer minAmount,
+        Integer maxAmount,     
+        Integer frequency,
+        Integer roip,
         Integer duration,
         Boolean available
     ) {
         this.name = name;
         this.description = description;
-        this.amount = amount;
-        this.interest = interest;
+        this.maxAmount = maxAmount;
+        this.minAmount = minAmount;
+        this.roip = roip;
         this.duration = duration;
-        this.createdAt = 20390;
+        this.frequency = frequency;
+    	this.createdAt = LocalDateTime.now();
         this.available = available;
-        this.subscriptionsCount = 0;
 
     }
 
@@ -98,22 +107,7 @@ public class SubscriptionPlan {
         this.description = description;
     }
 
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public Integer getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Integer createdAt) {
-        this.createdAt = createdAt;
-    }
-
+ 
     public Boolean getAvailable() {
         return available;
     }
@@ -121,19 +115,61 @@ public class SubscriptionPlan {
         this.available = available;
     }
 
-    public Integer getInterest() {
-        return interest;
-    }
-    public void setInterest(Integer interest) {
-        this.interest = interest;
-    }
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
 
-    public Integer getSubscriptionsCount() {
-        return subscriptionsCount;
-    }
-    public void setSubscriptionsCount(Integer sC) {
-        this.subscriptionsCount = sC;
-    }
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	
+
+	public Integer getRoip() {
+		return roip;
+	}
+
+	public void setRoip(Integer roip) {
+		this.roip = roip;
+	}
+
+	public Integer getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(Integer frequency) {
+		this.frequency = frequency;
+	}
+
+	public Integer getMinAmount() {
+		return minAmount;
+	}
+
+	public void setMinAmount(Integer minAmount) {
+		this.minAmount = minAmount;
+	}
+
+	public Integer getMaxAmount() {
+		return maxAmount;
+	}
+
+	public void setMaxAmount(Integer maxAmount) {
+		this.maxAmount = maxAmount;
+	}
+	
+	public SubscriptionPlanResponse getRequestResponse() {
+		SubscriptionPlanResponse subscriptionPlanResponse = new SubscriptionPlanResponse();
+		subscriptionPlanResponse.setId(this.id);
+		subscriptionPlanResponse.setAvailable(this.available);
+		subscriptionPlanResponse.setCreatedAt(this.createdAt);
+		subscriptionPlanResponse.setDescription(this.description);
+		subscriptionPlanResponse.setDuration(this.duration);
+		subscriptionPlanResponse.setFrequency(this.frequency);
+		subscriptionPlanResponse.setMaxAmount(this.maxAmount);
+		subscriptionPlanResponse.setMinAmount(this.minAmount);
+		subscriptionPlanResponse.setRoip(this.roip);
+		return subscriptionPlanResponse;
+	}
     
   
    

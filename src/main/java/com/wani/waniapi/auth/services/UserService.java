@@ -13,7 +13,7 @@ import com.wani.waniapi.auth.repository.UserRepository;
 @Service
 public class UserService {
 
-	private static final long EXPIRE_TOKEN_AFTER_MINUTES = 30;
+	private static final long EXPIRE_TOKEN_AFTER_MINUTES = 10000;
 
 	@Autowired
 	private UserRepository userRepository;

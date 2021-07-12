@@ -57,14 +57,15 @@ public class WithdrawalController {
 	/*
      * get user withdrawals 
      */
-    @GetMapping("admin/user/withdrawals")
-    @PreAuthorize("hasRole('USER')")
-    public List<Withdrawal> getUserWithdrawals(
- 	       @AuthenticationPrincipal UserDetailsImpl userDetail
-    ){
-        List<Withdrawal> withdrawals = withdrawalRepository.findByUserId(userDetail.getId());
-        return withdrawals;
-    }
+//    @GetMapping("admin/user/withdrawals")
+//    @PreAuthorize("hasRole('USER')")
+//    public List<Withdrawal> getUserAccountWithdrawals(
+// 	       @AuthenticationPrincipal UserDetailsImpl userDetail
+//    ){
+//        List<Withdrawal> withdrawals = withdrawalRepository.findAccountId(accountId)(userDetail.getId());
+//        return withdrawals;
+//    }
+    
     
     @PostMapping("/withdrawal/create")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -73,7 +74,7 @@ public class WithdrawalController {
  	       @AuthenticationPrincipal UserDetailsImpl userDetail
     ){
     	
-    	if(createWithdrawal.getAmount() != null) {
+    	if(createWithdrawal.getAmount() == null) {
     		return ResponseEntity
                     .badRequest()
                     .body(
@@ -84,18 +85,8 @@ public class WithdrawalController {
                         )
                     );
     	}
-    	if(createWithdrawal.getPhoneNumber() != null) {
-    		return ResponseEntity
-                    .badRequest()
-                    .body(
-                        new ErrorResponse(
-                                404,
-                                "withdrawal/phone-number-is-required",
-                                "the withdrawal phone number is required"
-                        )
-                    );
-    	}
-    	if(createWithdrawal.getPaymentMethodId() != null) {
+   
+    	if(createWithdrawal.getPaymentMethodId() == null) {
     		return ResponseEntity
                     .badRequest()
                     .body(
@@ -120,8 +111,7 @@ public class WithdrawalController {
                   )
               );
     	}
-    	Optional<Account> account =  accountRepository.findByUserId(
-    			userDetail.getId());
+    	Optional<Account> account =  accountRepository.findById(createWithdrawal.getAccountId());
     	if(!account.isPresent()) {
     		return ResponseEntity
     	              .badRequest()
@@ -148,8 +138,7 @@ public class WithdrawalController {
     	
     	// create the withdrawal
     	Withdrawal withdrawal = new Withdrawal(
-    			userDetail.getId(), 
-    			createWithdrawal.getPhoneNumber(), 
+    			accountValues.getId(), 
     			createWithdrawal.getPaymentMethodId(), 
     			createWithdrawal.getAmount());
     	

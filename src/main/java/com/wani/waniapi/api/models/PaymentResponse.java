@@ -1,5 +1,7 @@
 package com.wani.waniapi.api.models;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 
 import com.wani.waniapi.auth.models.User;
@@ -9,7 +11,7 @@ public class PaymentResponse {
 	private String id;
 	private User user;
 	private PaymentMethod paymentMethod;
-	private Integer createdAt;
+    private LocalDateTime createdAt;
 	public String getId() {
 		return id;
 	}
@@ -28,12 +30,12 @@ public class PaymentResponse {
 	public void setPaymentMethod(PaymentMethod paymentMethod) {
 		this.paymentMethod = paymentMethod;
 	}
-	public Integer getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
-	public void setCreatedAt(Integer createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-	
+
 
 }
