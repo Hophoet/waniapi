@@ -132,7 +132,6 @@ public class SubscriptionController {
        }
         
         /** MUST GET THE AUTHENTICATED USER NOT BY THE USER ID */
-     
         
         // get the user account id
         Optional<Account> account = accountRepository.findById(createSubscriptionRequest.getAccountId());
@@ -156,7 +155,14 @@ public class SubscriptionController {
         		accountObject.getId(), 
         		createSubscriptionRequest.getAmount()
         		);
-      
+        
+        // set perfect money payment method as the default payment method
+        Optional<PaymentMethod> perfectMoney = paymentMethodRepository.findByName("Perfect Money");
+        if(perfectMoney.isPresent()) {
+        	payment.setPaymentMethodId(
+        			perfectMoney.get().getId()
+        	);
+        }
       
         Payment paymentObject = paymentRepository.save(payment);
         
@@ -168,10 +174,18 @@ public class SubscriptionController {
             paymentObject.getId()
         );
         // set the subscription endedAt value
+        subscription.setEndedAt(
+        		subscription.getCreatedAt().plusDays(subscriptionPlanValues.getDuration())
+       );
+        
+        // set the next interest payment at 
+        subscription.setNextInterestPaymentAt(
+
+        		subscription.getCreatedAt().plusDays(subscriptionPlanValues.getFrequency())
+        );
   
         // set the remaining duration
      
-        
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
         // response
         return ResponseEntity.ok(

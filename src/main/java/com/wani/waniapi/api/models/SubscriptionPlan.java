@@ -160,6 +160,7 @@ public class SubscriptionPlan {
 	public SubscriptionPlanResponse getRequestResponse() {
 		SubscriptionPlanResponse subscriptionPlanResponse = new SubscriptionPlanResponse();
 		subscriptionPlanResponse.setId(this.id);
+		subscriptionPlanResponse.setName(this.name);
 		subscriptionPlanResponse.setAvailable(this.available);
 		subscriptionPlanResponse.setCreatedAt(this.createdAt);
 		subscriptionPlanResponse.setDescription(this.description);

@@ -36,6 +36,12 @@ public class Payment {
     	this.setCreatedAt(LocalDateTime.now());
     	// must set the default payment
     }
+    
+    public Payment() {
+    	// 
+    	this.setCreatedAt(LocalDateTime.now());
+
+    }
 
     public String getId() {
         return id;
@@ -78,6 +84,15 @@ public class Payment {
 
 	public void setAmount(Integer amount) {
 		this.amount = amount;
+	}
+	
+	public PaymentResponse getRequestResponse() {
+		PaymentResponse paymentResponse = new PaymentResponse();
+		paymentResponse.setId(this.id);
+		paymentResponse.setCreatedAt(this.createdAt);
+		
+		
+		return paymentResponse;
 	}
 
 
