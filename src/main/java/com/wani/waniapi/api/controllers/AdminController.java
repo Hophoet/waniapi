@@ -18,6 +18,7 @@ import com.wani.waniapi.auth.repository.RoleRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
 import com.wani.waniapi.api.serializers.SubscriptionSerializer;
+import com.wani.waniapi.api.services.SubscriptionService;
 import com.wani.waniapi.api.repositories.AccountRepository;
 import com.wani.waniapi.api.repositories.FileRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
@@ -44,6 +45,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import javax.validation.Valid;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
@@ -58,6 +61,9 @@ public class AdminController {
 
     @Autowired
 	private UserService userService;
+
+    @Autowired
+	private SubscriptionService subscriptionService;
 
     @Autowired
     FileRepository fileRepository;
@@ -257,7 +263,7 @@ public class AdminController {
                 // delete the old image setted
                 fileRepository.deleteById(imageId);
             }
-        }
+        } 
 
 
         String message = "";
@@ -686,19 +692,25 @@ public class AdminController {
             // check if the subscription plan don't have a subscriptioin in progress
             List<Subscription> subscriptions = subscriptionRepository.findBySubscriptionPlanId(subscriptionPlanValues.getId());
             for(Subscription subscription : subscriptions) {
-            		  return ResponseEntity
-            	                .badRequest()
-            	                .body(
-            	                    new ErrorResponse(
-            	                            400,
-            	                            "subscription-plan/have-subscription-in-progress",
-            	                            "subscription plan can not be update, have subscription in progess"
-            	                    )
-            	      );
+            		LocalDateTime now = LocalDateTime.now();
+            		if(subscription.getEndedAt().isAfter(now)) {
+						return ResponseEntity
+									.badRequest()
+									.body(
+										new ErrorResponse(
+												400,
+												"subscription-plan/have-subscription-in-progress",
+												"subscription plan can not be update, have subscription in progess"
+										)
+						  );
+            		}
+            		else {
+            			// subscription already finish so the subscription plan can be delete in that case
+            		}
             	
             }
             
-            subscriptionPlanRepository.deleteById(id);
+//            subscriptionPlanRepository.deleteById(id);
             return new ResponseEntity(HttpStatus.OK);
         }
         catch (Exception e){
@@ -775,46 +787,9 @@ public class AdminController {
         List<Subscription> subscriptions = subscriptionRepository.findAll();
         for(Subscription subscription: subscriptions) {
         
-        	SubscriptionResponse subscriptionResponse = SubscriptionSerializer.serializer(subscription);
-        	subscriptionResponse.setId(subscription.getId());
-        	subscriptionResponse.setCreatedAt(subscription.getCreatedAt());
-        	subscriptionResponse.setEndedAt(subscription.getEndedAt());
-        	subscriptionResponse.setPaid(subscription.getPaid());
-        	subscriptionResponse.setAmount(subscription.getAmount());
-        	subscriptionResponse.setTimeRemaining(subscription.getTimeRemaining());
-        	subscriptionResponse.setEndedAt(subscription.getEndedAt());
-        	subscriptionResponse.setLastInterestPaymentAt(subscription.getLastInterestPaymentAt());
-        	subscriptionResponse.setNextInterestPaymentAt(subscription.getNextInterestPaymentAt());
-        	
-        	Optional<Account> account = accountRepository.findById(subscription.getAccountId());
-
-    		if(account.isPresent()) {
-    			subscriptionResponse.setAccount(account.get());
-    		}
-    		Optional<SubscriptionPlan> subscriptionPlan = subscriptionPlanRepository.findById(subscription.getSubscriptionPlanId());
-    		if(subscriptionPlan.isPresent()) {
-    			subscriptionResponse.setSubscriptionPlan(subscriptionPlan.get());
-    		}
-    		Optional<Payment> payment = paymentRepository.findById(subscription.getPaymentId());
-    		if(payment.isPresent()) {
-    			// get the payment model object
-    			Payment paymentValues = payment.get();
-    			// create the payment response model object
-    			PaymentResponse paymentResponse = new PaymentResponse();
-    			// set the payment model object id and createdAt attribute to the payment response
-    			paymentResponse.setId(paymentValues.getId());
-    			// get the payment method object with the payment method id from the payment object
-    			paymentResponse.setCreatedAt(paymentValues.getCreatedAt());
-    			Optional<PaymentMethod> paymentMethod = paymentMethodRepository.findById(paymentValues.getPaymentMethodId());
-        		if(paymentMethod.isPresent()) {
-        			// set the payment method object to payment response if it exist
-        			paymentResponse.setPaymentMethod(paymentMethod.get());
-        		}
-        		subscriptionResponse.setPayment(paymentResponse);
-
-    		}
-    		subscriptionResponses.add(subscriptionResponse);
-        	
+    		subscriptionResponses.add(
+    			subscriptionService.getRequestResponse(subscription.getId())	
+    				);
         }
         return subscriptionResponses;
     }
