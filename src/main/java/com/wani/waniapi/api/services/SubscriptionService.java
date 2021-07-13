@@ -10,10 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.wani.waniapi.api.models.Account;
 import com.wani.waniapi.api.models.AccountResponse;
+import com.wani.waniapi.api.models.Payment;
 import com.wani.waniapi.api.models.Subscription;
 import com.wani.waniapi.api.models.SubscriptionPlan;
 import com.wani.waniapi.api.models.SubscriptionResponse;
 import com.wani.waniapi.api.repositories.AccountRepository;
+import com.wani.waniapi.api.repositories.PaymentRepository;
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
 import com.wani.waniapi.auth.models.User;
@@ -27,7 +29,16 @@ public class SubscriptionService {
 	
 	@Autowired
 	private AccountRepository accountRepository;
+
+	@Autowired
+	private SubscriptionPlanService subscriptionPlanService;
+
+	@Autowired
+	private PaymentRepository paymentReposity;
 	
+	@Autowired
+	private PaymentService paymentService;
+
 	@Autowired
 	private SubscriptionPlanRepository subscriptionPlanRepository;
 	
@@ -60,15 +71,21 @@ public class SubscriptionService {
         		
         );
         
-        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
-        		subscriptionObject.getSubscriptionPlanId()
+       // set the subcription plan response object 
+		subscriptionResponse.setSubscriptionPlan(
+				subscriptionPlanService.getRequestResponse(
+					subscriptionObject.getSubscriptionPlanId()	
+		));
+
+        Optional<Payment> payment =  paymentReposity.findById(
+        		subscriptionObject.getPaymentId()
         		);
-        if(subscriptionPlan.isPresent()){
-        	// get the subscription plan response model
-        	subscriptionResponse.setSubscriptionPlan(
-        			subscriptionPlan.get().getRequestResponse()
-        	);
-        	
+        if(payment.isPresent()) {
+			// set payment response 
+			subscriptionResponse.setPayment(
+				paymentService.getRequestResponse(
+						subscriptionObject.getPaymentId())
+					);
         	
         }
         
