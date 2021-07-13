@@ -1,5 +1,7 @@
 package com.wani.waniapi.api.controllers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -241,11 +243,11 @@ public class InterestController {
 	        	
 	        }
 	        // get the subscription model object
-	        Subscription subscriptionValues = subscription.get();
+	        Subscription subscriptionObject = subscription.get();
 	      
 	        // get the subscription plan
 	        Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
-	            subscriptionValues.getSubscriptionPlanId()
+	            subscriptionObject.getSubscriptionPlanId()
 	        );
 	        if(!subscriptionPlan.isPresent()) {
 	        	 return ResponseEntity
@@ -258,11 +260,94 @@ public class InterestController {
 	                           )
 	              );
 	        }
-	        InterestResponse interestResponse = this.payInterest(
-	        		subscriptionValues.getId()
-    		);
-	       
-	        return ResponseEntity.ok(interestResponse);
+	        // check if the subscription plan exists
+	        SubscriptionPlan subscriptionPlanObject = subscriptionPlan.get();
+       
+       
+		   // check if the user account exists
+			Optional<Account> account = accountRepository.findById(
+					subscriptionObject.getAccountId());
+		   if(!account.isPresent()) {
+	        	   return ResponseEntity
+	                       .badRequest()
+	                       .body(
+	                           new ErrorResponse(
+	                                   404,
+	                                   "account/not-found",
+	                                   "account not found"
+	                           )
+	                       );
+		   }
+		   Account accountObject = account.get();
+		   
+
+		   // check if the subscription not finish
+		   if( subscriptionObject.getEndedAt().isBefore(LocalDateTime.now()) ) {
+			   // the subscription is finish in this case
+			   return ResponseEntity
+					   .badRequest()
+					   .body(
+						   new ErrorResponse(
+								   401,
+								   "subscription-interest/payment-finished",
+								   "subscription interest payment finished"
+						   )
+					   );
+		   }
+		   
+		   
+		   // get how many time the subcription can be take
+		   Duration duration = Duration.between(
+				   subscriptionObject.getNextInterestPaymentAt(), 
+				   LocalDateTime.now());
+		   long durationDays = duration.toDays();
+		   // get the number of time the interest payment can be done
+		   long interestPaymentTime = durationDays / subscriptionPlanObject.getFrequency();
+		   
+		   // check if the subcription reach the minimum time for the interest payment
+		   if(interestPaymentTime < 1) {
+			   // the interestPaymentTime must be at least equal or greater than 1 to be able to get the 
+			   // interest payment
+			   return ResponseEntity
+					   .badRequest()
+					   .body(
+						   new ErrorResponse(
+								   400,
+								   "subscription-interest/not-reach-next-payment-time",
+								   "subscription not reach the next interest payment time"
+						   )
+					   );
+		   }
+		   
+		   // calculate the interest payment amount
+		   int interestPaymentAmount =(int) (
+				   (subscriptionObject.getAmount() * subscriptionPlanObject.getRoip())/100 * interestPaymentTime
+				   );
+
+		   // create the interest payment
+		   Interest interest = new Interest(
+				   subscriptionObject.getId(), 
+				   subscriptionObject.getAccountId(), 
+				   interestPaymentAmount
+			);
+		   interestRepository.save(interest);
+		   
+		   // update the user amount
+		   accountObject.addAmount(interestPaymentAmount);
+		   accountRepository.save(accountObject);
+		   
+		   // update the subscription 
+		   subscriptionObject.setNextInterestPaymentAt(
+				   subscriptionObject.getNextInterestPaymentAt().plusDays(
+						   subscriptionPlanObject.getDuration() * interestPaymentTime)
+			);
+		   Subscription updatedSubscription = subscriptionRepository.save(subscriptionObject);
+		   
+//				InterestResponse interestResponse = this.payInterest(
+//						subscriptionValues.getId()
+//				);
+			   
+			return ResponseEntity.ok(updatedSubscription);
 	    }
 
 
