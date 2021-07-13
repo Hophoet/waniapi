@@ -17,8 +17,8 @@ public class Subscription {
     private LocalDateTime createdAt;
     private LocalDateTime endedAt;
 
-    private long lastInterestPaymentAt;
-    private long nextInterestPaymentAt;
+    private LocalDateTime lastInterestPaymentAt;
+    private LocalDateTime nextInterestPaymentAt;
     private boolean paid = false;
     private int timeRemaining ;
     
@@ -100,12 +100,13 @@ public class Subscription {
 		this.accountId = accountId;
 	}
 
-	public long getLastInterestPaymentAt() {
-		return lastInterestPaymentAt;
+
+	public LocalDateTime getEndedAt() {
+		return endedAt;
 	}
 
-	public void setLastInterestPaymentAt(long lastInterestPaymentAt) {
-		this.lastInterestPaymentAt = lastInterestPaymentAt;
+	public void setEndedAt(LocalDateTime endedAt) {
+		this.endedAt = endedAt;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -116,21 +117,23 @@ public class Subscription {
 		this.createdAt = createdAt;
 	}
 
-	public long getNextInterestPaymentAt() {
+	public LocalDateTime getLastInterestPaymentAt() {
+		return lastInterestPaymentAt;
+	}
+
+	public void setLastInterestPaymentAt(LocalDateTime lastInterestPaymentAt) {
+		this.lastInterestPaymentAt = lastInterestPaymentAt;
+	}
+
+	public LocalDateTime getNextInterestPaymentAt() {
 		return nextInterestPaymentAt;
 	}
 
-	public void setNextInterestPaymentAt(long nextInterestPaymentAt) {
+	public void setNextInterestPaymentAt(LocalDateTime nextInterestPaymentAt) {
 		this.nextInterestPaymentAt = nextInterestPaymentAt;
 	}
-
-	public LocalDateTime getEndedAt() {
-		return endedAt;
-	}
-
-	public void setEndedAt(LocalDateTime endedAt) {
-		this.endedAt = endedAt;
-	}
+	
+	
 
 
     

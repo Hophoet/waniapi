@@ -14,8 +14,8 @@ public class SubscriptionResponse {
 	private int amount;
     private LocalDateTime createdAt;
     private LocalDateTime endedAt;
-    private long lastInterestPaymentAt;
-    private long nextInterestPaymentAt;
+    private LocalDateTime lastInterestPaymentAt;
+    private LocalDateTime nextInterestPaymentAt;
     private boolean paid = false;
     private int timeRemaining ;
 	 
@@ -69,18 +69,6 @@ public class SubscriptionResponse {
 	public void setEndedAt(LocalDateTime endedAt) {
 		this.endedAt = endedAt;
 	}
-	public long getLastInterestPaymentAt() {
-		return lastInterestPaymentAt;
-	}
-	public void setLastInterestPaymentAt(long lastInterestPaymentAt) {
-		this.lastInterestPaymentAt = lastInterestPaymentAt;
-	}
-	public long getNextInterestPaymentAt() {
-		return nextInterestPaymentAt;
-	}
-	public void setNextInterestPaymentAt(long nextInterestPaymentAt) {
-		this.nextInterestPaymentAt = nextInterestPaymentAt;
-	}
 
 	public AccountResponse getAccount() {
 		return account;
@@ -98,6 +86,26 @@ public class SubscriptionResponse {
 
 	public void setSubscriptionPlan(SubscriptionPlanResponse subscriptionPlan) {
 		this.subscriptionPlan = subscriptionPlan;
+	}
+
+
+	public LocalDateTime getLastInterestPaymentAt() {
+		return lastInterestPaymentAt;
+	}
+
+
+	public void setLastInterestPaymentAt(LocalDateTime lastInterestPaymentAt) {
+		this.lastInterestPaymentAt = lastInterestPaymentAt;
+	}
+
+
+	public LocalDateTime getNextInterestPaymentAt() {
+		return nextInterestPaymentAt;
+	}
+
+
+	public void setNextInterestPaymentAt(LocalDateTime nextInterestPaymentAt) {
+		this.nextInterestPaymentAt = nextInterestPaymentAt;
 	}
 
 

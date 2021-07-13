@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.wani.waniapi.auth.models.User;
+import com.wani.waniapi.auth.models.UserResponse;
 import com.wani.waniapi.auth.repository.UserRepository;
 
 @Service
@@ -51,9 +52,7 @@ public class UserService {
 			return "token-was-expired";
 
 		}
-
 		User user = userOptional.get();
-
 		user.setPassword(
             encoder.encode(password)
         );
@@ -64,6 +63,8 @@ public class UserService {
 
 		return "done";
 	}
+	
+
 
 	/**
 	 * Generate unique token. You may add multiple parameters to create a strong
@@ -88,7 +89,22 @@ public class UserService {
 
 		LocalDateTime now = LocalDateTime.now();
 		Duration diff = Duration.between(tokenCreationDate, now);
+	
 
 		return diff.toMinutes() >= EXPIRE_TOKEN_AFTER_MINUTES;
+	}
+	
+	
+	public UserResponse  getRequestResponse(String userId) {
+		UserResponse userResponse = new UserResponse();
+		Optional<User> user = userRepository.findById(userId);
+		if(!user.isPresent()) {
+			return null;
+		}
+		User userObject = user.get();
+		userResponse.setId(userObject.getId());
+		userResponse.setEmail(userObject.getEmail());
+		userResponse.setUsername(userObject.getUsername());
+		return userResponse;
 	}
 }
