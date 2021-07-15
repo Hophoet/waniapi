@@ -710,7 +710,7 @@ public class AdminController {
             	
             }
             
-//            subscriptionPlanRepository.deleteById(id);
+           subscriptionPlanRepository.deleteById(id);
             return new ResponseEntity(HttpStatus.OK);
         }
         catch (Exception e){
