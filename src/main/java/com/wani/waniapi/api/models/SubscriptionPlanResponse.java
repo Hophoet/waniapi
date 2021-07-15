@@ -85,5 +85,6 @@ public class SubscriptionPlanResponse {
 	public void setMinAmount(Integer minAmount) {
 		this.minAmount = minAmount;
 	}
+	
 
 }
