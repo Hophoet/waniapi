@@ -11,8 +11,10 @@ public class PaymentMethodResponse {
     @Id
     private String id;
     private String name;
+    private String code;
     private String description;
     private boolean isActive;
+
 	public String getId() {
 		return id;
 	}
@@ -36,6 +38,12 @@ public class PaymentMethodResponse {
 	}
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 
