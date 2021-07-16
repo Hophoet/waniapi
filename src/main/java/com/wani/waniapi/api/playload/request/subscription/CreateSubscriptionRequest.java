@@ -8,13 +8,19 @@ public class CreateSubscriptionRequest {
 
     @NotBlank
     private String subscriptionPlanId;
+    
+    private String perfectMoneyAccountId;
+    
+    private String  perfectMoneyPassPhrase;
+    
+    private String perfectMoneyAccount;
 
+    @NotBlank
+    private String paymentMethodId;
 
     private Integer amount;
-    
 
     private  Integer createdAt;
-
 
 
     public String getSubscriptionPlanId() {
@@ -51,6 +57,38 @@ public class CreateSubscriptionRequest {
 
 	public void setAccountId(String accountId) {
 		this.accountId = accountId;
+	}
+
+	public String getPerfectMoneyPassPhrase() {
+		return perfectMoneyPassPhrase;
+	}
+
+	public void setPerfectMoneyPassPhrase(String perfectMoneyPassPhrase) {
+		this.perfectMoneyPassPhrase = perfectMoneyPassPhrase;
+	}
+
+	public String getPerfectMoneyAccount() {
+		return perfectMoneyAccount;
+	}
+
+	public void setPerfectMoneyAccount(String perfectMoneyAccount) {
+		this.perfectMoneyAccount = perfectMoneyAccount;
+	}
+
+	public String getPaymentMethodId() {
+		return paymentMethodId;
+	}
+
+	public void setPaymentMethodId(String paymentMethodId) {
+		this.paymentMethodId = paymentMethodId;
+	}
+
+	public String getPerfectMoneyAccountId() {
+		return perfectMoneyAccountId;
+	}
+
+	public void setPerfectMoneyAccountId(String perfectMoneyAccountId) {
+		this.perfectMoneyAccountId = perfectMoneyAccountId;
 	}
 
     
