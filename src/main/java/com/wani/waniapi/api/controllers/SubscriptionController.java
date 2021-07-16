@@ -25,10 +25,12 @@ import com.wani.waniapi.api.playload.request.subscription.CreateSubscriptionRequ
 
 import com.wani.waniapi.api.repositories.SubscriptionPlanRepository;
 import com.wani.waniapi.api.repositories.SubscriptionRepository;
+import com.wani.waniapi.api.services.PerfectMoneyService;
 import com.wani.waniapi.api.services.SubscriptionService;
 import com.wani.waniapi.api.repositories.AccountRepository;
 import com.wani.waniapi.api.repositories.PaymentMethodRepository;
 import com.wani.waniapi.api.repositories.PaymentRepository;
+import com.wani.waniapi.api.repositories.PerfectMoneyAccountRepository;
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.security.services.UserDetailsImpl;
 import com.wani.waniapi.api.playload.request.subscription.CreateSubscriptionRequest;
@@ -46,6 +48,9 @@ public class SubscriptionController {
     
     @Autowired
     SubscriptionService subscriptionService;
+
+    @Autowired
+    PerfectMoneyService perfectMoneyService;
 
     @Autowired
     SubscriptionPlanRepository subscriptionPlanRepository;
@@ -186,7 +191,6 @@ public class SubscriptionController {
 						)
 					);
         	}
-        	//TODO Make the perfect money api payment
         }
         else {
 			return ResponseEntity
@@ -201,6 +205,18 @@ public class SubscriptionController {
         	
         }
         
+		/* TODO 
+		 * Get pefect money information from the env
+		 * Make the perfect money api payment
+		 * 
+		 * 
+		 * 
+		 */
+		
+		// get perfect money deposit account
+		String PERFECT_MONEY_DEPOSIT_ACCOUNT = perfectMoneyService.getPERFECT_MONEY_DEPOSIT_ACCOUNT();
+        	
+    
 
         
         // get the user account id
