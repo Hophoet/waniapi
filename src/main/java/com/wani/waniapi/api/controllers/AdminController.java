@@ -813,7 +813,6 @@ public class AdminController {
         return accounts;
     }
 
-  
     /*
      * PAYMENT METHOD
      */
@@ -859,6 +858,7 @@ public class AdminController {
     public ResponseEntity<?> createPaymentMethod(@Valid @RequestBody CreatePaymentMethodRequest createPaymentMethodRequest) {
         PaymentMethod paymentMethod = new PaymentMethod(
         		createPaymentMethodRequest.getName(), 
+        		createPaymentMethodRequest.getCode(), 
         		createPaymentMethodRequest.getDescription()
         );
         if(createPaymentMethodRequest.getIsActive() != null) {
