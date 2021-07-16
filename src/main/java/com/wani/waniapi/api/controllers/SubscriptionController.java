@@ -132,6 +132,76 @@ public class SubscriptionController {
        }
         
         /** MUST GET THE AUTHENTICATED USER NOT BY THE USER ID */
+        // get the payment method 
+        Optional<PaymentMethod> paymentMethod = paymentMethodRepository.findById(createSubscriptionRequest.getPaymentMethodId());
+        if(!paymentMethod.isPresent()) {
+       	 	return ResponseEntity
+                    .badRequest()
+                    .body(
+                        new ErrorResponse(
+                                400,
+                                "payment-method/not-found",
+                                "payment method not found"
+                        )
+                    );
+        }
+        
+        // get the payment method object
+        PaymentMethod paymentMethodObject = paymentMethod.get(); 
+        if(paymentMethodObject.getCode().contentEquals("PM")){
+        	String perfectMoneyAccountId =  createSubscriptionRequest.getPerfectMoneyAccountId();
+        	String perfectMoneyPassPhrase =  createSubscriptionRequest.getPerfectMoneyPassPhrase();
+        	String perfectMoneyAccount =  createSubscriptionRequest.getPerfectMoneyAccount();
+        	if(perfectMoneyAccountId == null) {
+					return ResponseEntity
+						.badRequest()
+						.body(
+							new ErrorResponse(
+									400,
+									"perfect-money/account-id-required",
+									"perfect money account id is required for perfect money payment"
+							)
+						);
+				}
+        	if(perfectMoneyPassPhrase == null) {
+				return ResponseEntity
+					.badRequest()
+					.body(
+						new ErrorResponse(
+								400,
+								"perfect-money/pass-phrase-required",
+								"perfect money pass phrase is required for perfect money payment"
+						)
+					);
+        		
+        	}
+        	if(perfectMoneyAccount == null) {
+				return ResponseEntity
+					.badRequest()
+					.body(
+						new ErrorResponse(
+								400,
+								"perfect-money/account-required",
+								"perfect money account is required for perfect money payment"
+						)
+					);
+        	}
+        	//TODO Make the perfect money api payment
+        }
+        else {
+			return ResponseEntity
+				.badRequest()
+				.body(
+					new ErrorResponse(
+							400,
+							"payment-method/not-available",
+							"payment method is not avialable"
+					)
+				);
+        	
+        }
+        
+
         
         // get the user account id
         Optional<Account> account = accountRepository.findById(createSubscriptionRequest.getAccountId());
@@ -154,16 +224,10 @@ public class SubscriptionController {
         Payment payment = new Payment(
         		accountObject.getId(), 
         		createSubscriptionRequest.getAmount()
-        		);
+        );
+        // set the payment id
+        payment.setPaymentMethodId(paymentMethodObject.getId());
         
-        // set perfect money payment method as the default payment method
-        Optional<PaymentMethod> perfectMoney = paymentMethodRepository.findByName("Perfect Money");
-        if(perfectMoney.isPresent()) {
-        	payment.setPaymentMethodId(
-        			perfectMoney.get().getId()
-        	);
-        }
-      
         Payment paymentObject = paymentRepository.save(payment);
         
         //create subscription
@@ -183,7 +247,6 @@ public class SubscriptionController {
 
         		subscription.getCreatedAt().plusDays(subscriptionPlanValues.getFrequency())
         );
-  
         // set the remaining duration
      
         Subscription subscriptionObject =  subscriptionRepository.save(subscription);
