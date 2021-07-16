@@ -8,15 +8,18 @@ public class PaymentMethod {
     @Id
     private String id;
     private String name;
+    private String code;
     private String description;
     private boolean isActive;
 
 
     public PaymentMethod(
         String name, 
+        String code,
         String description
     ) {
         this.name = name;
+        this.code = code;
         this.description = description;
         this.setActive(true);
     }
@@ -53,6 +56,14 @@ public class PaymentMethod {
 
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
     
   
