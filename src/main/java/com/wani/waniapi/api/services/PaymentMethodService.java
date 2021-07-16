@@ -32,6 +32,7 @@ public class PaymentMethodService {
 		PaymentMethod paymentMethodObject = paymentMethod.get();
 		paymentMethodResponse.setId(paymentMethodObject.getId());
 		paymentMethodResponse.setName(paymentMethodObject.getName());
+		paymentMethodResponse.setCode(paymentMethodObject.getCode());
 		paymentMethodResponse.setDescription(paymentMethodObject.getDescription());
 		paymentMethodResponse.setActive(paymentMethodObject.isActive());
 		return paymentMethodResponse;
