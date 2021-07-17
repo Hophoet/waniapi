@@ -33,6 +33,10 @@ import com.wani.waniapi.api.repositories.PaymentRepository;
 import com.wani.waniapi.api.repositories.PerfectMoneyAccountRepository;
 import com.wani.waniapi.auth.repository.UserRepository;
 import com.wani.waniapi.auth.security.services.UserDetailsImpl;
+
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+
 import com.wani.waniapi.api.playload.request.subscription.CreateSubscriptionRequest;
 
 import java.awt.*;
@@ -70,7 +74,8 @@ public class SubscriptionController {
     @PostMapping("/subscription/create")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity createSubscription(
-           @Valid @RequestBody CreateSubscriptionRequest createSubscriptionRequest
+           @Valid @RequestBody CreateSubscriptionRequest createSubscriptionRequest,
+ 	       @AuthenticationPrincipal UserDetailsImpl userDetail
     ){
         // get the subscription plan
         Optional<SubscriptionPlan> subscriptionPlan =  subscriptionPlanRepository.findById(
@@ -152,11 +157,11 @@ public class SubscriptionController {
         }
         
         // get the payment method object
+		String perfectMoneyAccountId =  createSubscriptionRequest.getPerfectMoneyAccountId();
+		String perfectMoneyPassPhrase =  createSubscriptionRequest.getPerfectMoneyPassPhrase();
+		String perfectMoneyAccount =  createSubscriptionRequest.getPerfectMoneyAccount();
         PaymentMethod paymentMethodObject = paymentMethod.get(); 
         if(paymentMethodObject.getCode().contentEquals("PM")){
-        	String perfectMoneyAccountId =  createSubscriptionRequest.getPerfectMoneyAccountId();
-        	String perfectMoneyPassPhrase =  createSubscriptionRequest.getPerfectMoneyPassPhrase();
-        	String perfectMoneyAccount =  createSubscriptionRequest.getPerfectMoneyAccount();
         	if(perfectMoneyAccountId == null) {
 					return ResponseEntity
 						.badRequest()
@@ -204,21 +209,7 @@ public class SubscriptionController {
 				);
         	
         }
-        
-		/* TODO 
-		 * Get pefect money information from the env
-		 * Make the perfect money api payment
-		 * 
-		 * 
-		 * 
-		 */
-		
-		// get perfect money deposit account
-		String PERFECT_MONEY_DEPOSIT_ACCOUNT = perfectMoneyService.getPERFECT_MONEY_DEPOSIT_ACCOUNT();
-        	
-    
 
-        
         // get the user account id
         Optional<Account> account = accountRepository.findById(createSubscriptionRequest.getAccountId());
         // check if the user accoun texists
@@ -233,6 +224,100 @@ public class SubscriptionController {
                     )
                 );
         }
+        
+		/* TODO 
+		 * Get pefect money information from the env
+		 * Make the perfect money api payment
+		 * 
+		 * 
+		 * 
+		 */
+		
+		// get perfect money deposit account
+		String PERFECT_MONEY_DEPOSIT_ACCOUNT = perfectMoneyService.getPERFECT_MONEY_DEPOSIT_ACCOUNT();
+		// message the payment du suscription 
+		String subscriptionPaymentMemo = "Subscription to "+subscriptionPlanValues.getName()+" by "+userDetail.getUsername();
+		// make the perfect money payment
+		HttpResponse perfectMoneyPaymentResponse = Unirest.post("https://perfectmoney.is/acct/confirm.asp")
+		.field("AccountID", perfectMoneyAccountId)
+		.field("PassPhrase", perfectMoneyPassPhrase)
+		.field("Payer_Account", perfectMoneyAccount)
+		.field("Payee_Account", PERFECT_MONEY_DEPOSIT_ACCOUNT)
+		.field("Amount", createSubscriptionRequest.getAmount().toString())
+		.field("Memo", subscriptionPaymentMemo)
+		.asString();
+		
+		String perfectMoneyPaymentResponseBodyString = perfectMoneyPaymentResponse.getBody().toString();
+		// get the payment status code
+		int perfectMoneyPaymentResponseStatus =  perfectMoneyPaymentResponse.getStatus();
+		
+		// check the perfect money payment validation
+		String NOT_ENOUGHT_MONEY_ERROR = "Not enough money to pay";
+		String INVALID_CREDENTIAL_ERROR = "Can not login with passed AccountID and PassPhrase or API is disabled on this account/IP";
+		String INVALID_ACCOUNT_TYPE_ERROR = "Payee and payer accounts has different types";
+		String INVALID_PAYER_ACCOUNT = "Invalid Payer_Account";
+		if(perfectMoneyPaymentResponseBodyString.contains(INVALID_CREDENTIAL_ERROR)) {
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            400,
+                            "perfect-money/invalid-credential",
+                            "invalid perfect money account credential"
+                    )
+                );
+		}
+		if(perfectMoneyPaymentResponseBodyString.contains(INVALID_ACCOUNT_TYPE_ERROR)) {
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            400,
+                            "perfect-money/invalid-account-type",
+                            "invalid perfect money account type"
+                    )
+                );
+		}
+		if(perfectMoneyPaymentResponseBodyString.contains(INVALID_PAYER_ACCOUNT)) {
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            400,
+                            "perfect-money/invalid-payer-account",
+                            "invalid perfect money payer account"
+                    )
+                );
+		}
+		else if(perfectMoneyPaymentResponseBodyString.contains(NOT_ENOUGHT_MONEY_ERROR)) {
+            return ResponseEntity
+                .badRequest()
+                .body(
+                    new ErrorResponse(
+                            400,
+                            "perfect-money/not-enough-money",
+                            "invalid perfect money account credential"
+                    )
+                );
+		}
+		else if(
+				perfectMoneyPaymentResponseBodyString.contains("ERROR")
+				&& perfectMoneyPaymentResponseBodyString.contains("Error")
+				) {
+				System.out.println("PERFECT MONEY PAYMENT ERROR");
+				System.out.println(perfectMoneyPaymentResponseBodyString);
+				return ResponseEntity
+					.badRequest()
+					.body(
+						new ErrorResponse(
+								400,
+								"perfect-money/error",
+								"perfect money error"
+						)
+					);
+		}
+
+        
         Account accountObject = account.get();
         
         
