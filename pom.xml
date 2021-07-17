@@ -77,6 +77,16 @@
 		    <groupId>org.springframework.data</groupId>
 		    <artifactId>spring-data-mongodb</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.konghq</groupId>
+			<artifactId>unirest-java</artifactId>
+			<version>3.11.09</version>
+			<classifier>standalone</classifier>
+		</dependency>
+
+		 
+		
+
 			
 	</dependencies>
 
