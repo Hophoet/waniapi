@@ -224,7 +224,6 @@ public class SubscriptionController {
                     )
                 );
         }
-        
 		/* TODO 
 		 * Get pefect money information from the env
 		 * Make the perfect money api payment
@@ -232,25 +231,39 @@ public class SubscriptionController {
 		 * 
 		 * 
 		 */
-		
 		// get perfect money deposit account
 		String PERFECT_MONEY_DEPOSIT_ACCOUNT = perfectMoneyService.getPERFECT_MONEY_DEPOSIT_ACCOUNT();
 		// message the payment du suscription 
 		String subscriptionPaymentMemo = "Subscription to "+subscriptionPlanValues.getName()+" by "+userDetail.getUsername();
-		// make the perfect money payment
-		HttpResponse perfectMoneyPaymentResponse = Unirest.post("https://perfectmoney.is/acct/confirm.asp")
-		.field("AccountID", perfectMoneyAccountId)
-		.field("PassPhrase", perfectMoneyPassPhrase)
-		.field("Payer_Account", perfectMoneyAccount)
-		.field("Payee_Account", PERFECT_MONEY_DEPOSIT_ACCOUNT)
-		.field("Amount", createSubscriptionRequest.getAmount().toString())
-		.field("Memo", subscriptionPaymentMemo)
-		.asString();
 		
-		String perfectMoneyPaymentResponseBodyString = perfectMoneyPaymentResponse.getBody().toString();
+		String perfectMoneyPaymentResponseBodyString;
 		// get the payment status code
-		int perfectMoneyPaymentResponseStatus =  perfectMoneyPaymentResponse.getStatus();
-		
+		int perfectMoneyPaymentResponseStatus;
+		try {
+			// make the perfect money payment
+			HttpResponse perfectMoneyPaymentResponse = Unirest.post("https://perfectmoney.is/acct/confirm.asp")
+			.field("AccountID", perfectMoneyAccountId)
+			.field("PassPhrase", perfectMoneyPassPhrase)
+			.field("Payer_Account", perfectMoneyAccount)
+			.field("Payee_Account", PERFECT_MONEY_DEPOSIT_ACCOUNT)
+			.field("Amount", createSubscriptionRequest.getAmount().toString())
+			.field("Memo", subscriptionPaymentMemo)
+			.asString();
+			//
+			perfectMoneyPaymentResponseBodyString = perfectMoneyPaymentResponse.getBody().toString();
+			// get the payment status code
+			perfectMoneyPaymentResponseStatus =  perfectMoneyPaymentResponse.getStatus();
+		} catch (Exception e) {
+			return ResponseEntity
+				.badRequest()
+				.body(
+					new ErrorResponse(
+							400,
+							"perfect-money/request-failed",
+							"perfect money request failed: "+e.toString()
+					)
+				);
+		}
 		// check the perfect money payment validation
 		String NOT_ENOUGHT_MONEY_ERROR = "Not enough money to pay";
 		String INVALID_CREDENTIAL_ERROR = "Can not login with passed AccountID and PassPhrase or API is disabled on this account/IP";
