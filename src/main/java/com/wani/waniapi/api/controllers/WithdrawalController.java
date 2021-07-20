@@ -1,5 +1,6 @@
 package com.wani.waniapi.api.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ import com.wani.waniapi.api.models.PaymentMethod;
 import com.wani.waniapi.api.models.PerfectMoneyAccount;
 import com.wani.waniapi.api.models.SubscriptionPlan;
 import com.wani.waniapi.api.models.Withdrawal;
+import com.wani.waniapi.api.models.WithdrawalResponse;
 import com.wani.waniapi.api.playload.request.subscription.CreateSubscriptionRequest;
 import com.wani.waniapi.api.playload.request.withdrawal.CreateWithdrawal;
 import com.wani.waniapi.api.repositories.AccountRepository;
@@ -29,6 +31,7 @@ import com.wani.waniapi.api.repositories.PaymentRepository;
 import com.wani.waniapi.api.repositories.PerfectMoneyAccountRepository;
 import com.wani.waniapi.api.repositories.WithdrawalRepository;
 import com.wani.waniapi.api.services.PerfectMoneyService;
+import com.wani.waniapi.api.services.WithdrawalService;
 import com.wani.waniapi.auth.playload.response.ErrorResponse;
 import com.wani.waniapi.auth.security.services.UserDetailsImpl;
 
@@ -52,6 +55,9 @@ public class WithdrawalController {
     AccountRepository accountRepository;
 
     @Autowired
+    WithdrawalService withdrawalService;
+
+    @Autowired
     PerfectMoneyAccountRepository perfectMonayAccountRepository;
 	
 	/*
@@ -59,10 +65,16 @@ public class WithdrawalController {
      */
     @GetMapping("admin/withdrawals")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Withdrawal> getWithdrawals(
+    public List<WithdrawalResponse> getWithdrawals(
     ){
+    	List<WithdrawalResponse> withdrawalResponses = new ArrayList<>();
         List<Withdrawal> withdrawals = withdrawalRepository.findAll();
-        return withdrawals;
+        for(Withdrawal withdrawal: withdrawals) {
+        	withdrawalResponses.add(
+        			withdrawalService.getRequestResponse(withdrawal.getId())
+        	);
+        }
+        return withdrawalResponses;
     }
     
 	/*
@@ -229,7 +241,8 @@ public class WithdrawalController {
 		
 			
 		} catch (Exception e) {
-			return ResponseEntity
+
+			 return ResponseEntity
 				.badRequest()
 				.body(
 					new ErrorResponse(
